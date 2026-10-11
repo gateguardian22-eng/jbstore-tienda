@@ -51,7 +51,7 @@
       min-width: 85%; flex: 0 0 auto; scroll-snap-align: center;
       border-radius: 12px; overflow: hidden; position: relative;
       cursor: pointer; border: 1px solid var(--border); background: #000;
-      height: 120px;
+      height: 140px;
     }
     .banner-card img {
       width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.2s;
@@ -59,7 +59,7 @@
     .banner-card:hover img { opacity: 1; }
     .banner-overlay {
       position: absolute; bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
       padding: 10px; color: #fff;
     }
     .banner-title { font-size: 13px; font-weight: 700; }
@@ -166,10 +166,14 @@
         <h3>📢 Novedades JBstore</h3>
         <button class="close-btn" onclick="closeModal('promo-modal')">&times;</button>
       </div>
-      <img id="promo-modal-img" src="" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
+      <img id="promo-modal-img" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
       <h4 id="promo-modal-title" style="font-size: 16px; margin-bottom: 8px;"></h4>
       <p id="promo-modal-desc" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;"></p>
-      <button class="btn" onclick="closeModal('promo-modal')">Entendido</button>
+      
+      <div style="display: flex; gap: 10px;">
+        <button class="btn" style="background: var(--success);" id="btn-go-offer">📲 Ir a la Oferta</button>
+        <button class="btn" style="background: #e5e7eb; color: var(--text);" onclick="closeModal('promo-modal')">Cerrar</button>
+      </div>
     </div>
   </div>
 
@@ -213,7 +217,7 @@
       <div id="admin-auth">
         <div class="field-group">
           <label>PIN de Acceso:</label>
-          <input type="password" id="admin-pin" placeholder="Ingresa PIN (Predeterminado: 1234)">
+          <input type="password" id="admin-pin" placeholder="Ingresa PIN (Clave: 24.07.12)">
         </div>
         <button class="btn" onclick="authAdmin()">Ingresar</button>
       </div>
@@ -274,9 +278,16 @@
 
         <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
 
-        <h4>3. Banners Promocionales (Novedades JBstore)</h4>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Agrega hasta 5 banners publicitaros que aparecerán en el scroll de inicio.</p>
+        <h4>3. Banners Promocionales (Máximo 3)</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Crea o edita los banners del carrusel de inicio y define su tiempo de caducidad en horas.</p>
         
+        <div class="field-group">
+          <label>Seleccionar Banner para Editar (o dejar en Nuevo):</label>
+          <select id="edit-banner-select" onchange="loadBannerToEdit()">
+            <option value="NEW">➕ -- CREAR NUEVO BANNER --</option>
+          </select>
+        </div>
+
         <div class="field-group">
           <label>Título de la Promo/Novedad:</label>
           <input type="text" id="banner-title" placeholder="Ej: ¡Oferta Especial Fin de Semana!">
@@ -289,10 +300,14 @@
           <label>Imagen Banner (URL o ID de Drive):</label>
           <input type="text" id="banner-img" value="https://drive.google.com/uc?export=view&id=">
         </div>
+        <div class="field-group">
+          <label>Tiempo de Vida Útil (en Horas, ej: 24 para 1 día / 0 = sin límite):</label>
+          <input type="number" id="banner-hours" placeholder="Ej: 24" value="24">
+        </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-          <button class="btn" style="background: var(--accent);" onclick="addBanner()">Agregar Banner</button>
-          <button class="btn" style="background: var(--danger);" onclick="clearBanners()">Borrar Banners</button>
+          <button class="btn" style="background: var(--accent);" id="btn-save-banner" onclick="saveBanner()">Guardar Banner</button>
+          <button class="btn" style="background: var(--danger); display: none;" id="btn-delete-banner" onclick="deleteBanner()">Eliminar Banner</button>
         </div>
 
         <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
@@ -315,6 +330,7 @@
 
   <script>
     const DRIVE_PREFIX = "https://drive.google.com/uc?export=view&id=";
+    const PHONE_NUMBER = "584122546526";
 
     let storeData = JSON.parse(localStorage.getItem('jbstore_data')) || {
       tasaBs: 45.00,
@@ -322,9 +338,11 @@
       binanceId: "123456789 (JBstore)",
       banners: [
         {
-          titulo: "🔥 ¡Ofertas Semanales en JBstore!",
-          desc: "Aprovecha nuestras tasas especiales y recargas con bonificación directamente a tu cuenta. Haz tus pedidos de forma rápida y segura.",
-          img: "https://via.placeholder.com/600x200/111827/ffffff?text=JBstore+Promociones"
+          id: "b1",
+          titulo: "🔥 Oferta en Robux — 500 x 4.99 USDT",
+          desc: "¡Aprovecha precio de tienda oficial! Te ahorras la comisión. Recarga rápida y segura a tu cuenta con JBstore.",
+          img: "https://dummyimage.com/600x300/111827/ffffff.png&text=500+Robux+x+4.99+USDT+--+Precio+Oficial",
+          expireAt: null
         }
       ],
       productos: [
@@ -345,13 +363,21 @@
 
     let cart = null;
 
+    function cleanExpiredBanners() {
+      if (!storeData.banners) return;
+      const now = Date.now();
+      storeData.banners = storeData.banners.filter(b => !b.expireAt || b.expireAt > now);
+    }
+
     function saveToStorage() {
       localStorage.setItem('jbstore_data', JSON.stringify(storeData));
       renderStore();
       populateAdminProductDropdown();
+      populateAdminBannerDropdown();
     }
 
     function renderStore() {
+      cleanExpiredBanners();
       document.getElementById('tasa-display').innerText = `Tasa del día: ${storeData.tasaBs.toFixed(2)} BS / USDT`;
       document.getElementById('payment-methods-info').innerHTML = `
         <b>Pago Móvil:</b> ${storeData.pagoMovil}<br>
@@ -362,6 +388,7 @@
       const bannersList = document.getElementById('banners-list');
       bannersList.innerHTML = '';
       if (storeData.banners && storeData.banners.length > 0) {
+        document.querySelector('.banner-container').style.display = 'block';
         storeData.banners.forEach((b, bIdx) => {
           bannersList.innerHTML += `
             <div class="banner-card" onclick="openPromoModal(${bIdx})">
@@ -420,6 +447,12 @@
       document.getElementById('promo-modal-img').src = b.img;
       document.getElementById('promo-modal-title').innerText = b.titulo;
       document.getElementById('promo-modal-desc').innerText = b.desc;
+      
+      let msg = encodeURIComponent(`Hola JBstore, vi esta oferta en tu catálogo web y me interesa comprar:\n📢 *${b.titulo}*\n\n¿Tienen disponibilidad?`);
+      document.getElementById('btn-go-offer').onclick = function() {
+        window.open(`https://wa.me/${PHONE_NUMBER}?text=${msg}`, '_blank');
+      };
+
       openModal('promo-modal');
     }
 
@@ -465,7 +498,7 @@
       if (tg && tg.sendData) {
         tg.sendData(text);
       } else {
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
       }
       closeModal('checkout-modal');
     }
@@ -474,13 +507,14 @@
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function authAdmin() {
-      if (document.getElementById('admin-pin').value === "1234") {
+      if (document.getElementById('admin-pin').value === "24.07.12") {
         document.getElementById('admin-auth').style.display = 'none';
         document.getElementById('admin-body').style.display = 'block';
         document.getElementById('admin-tasa').value = storeData.tasaBs;
         document.getElementById('admin-pm').value = storeData.pagoMovil;
         document.getElementById('admin-binance').value = storeData.binanceId;
         populateAdminProductDropdown();
+        populateAdminBannerDropdown();
       } else { alert("PIN Incorrecto"); }
     }
 
@@ -492,6 +526,7 @@
       alert("Tasa y datos de pago actualizados.");
     }
 
+    /* GESTIÓN DE PRODUCTOS */
     function populateAdminProductDropdown() {
       let sel = document.getElementById('edit-prod-select');
       sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO ARTÍCULO --</option>';
@@ -572,29 +607,93 @@
       }
     }
 
-    function addBanner() {
+    /* GESTIÓN DE BANNERS CON EDICIÓN Y TIEMPO DE VIDA */
+    function populateAdminBannerDropdown() {
+      let sel = document.getElementById('edit-banner-select');
+      sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO BANNER --</option>';
+      if (storeData.banners) {
+        storeData.banners.forEach((b, idx) => {
+          sel.innerHTML += `<option value="${b.id || idx}">🖼️ ${b.titulo}</option>`;
+        });
+      }
+      loadBannerToEdit();
+    }
+
+    function loadBannerToEdit() {
+      let selectedId = document.getElementById('edit-banner-select').value;
+      let btnDelete = document.getElementById('btn-delete-banner');
+      let btnSave = document.getElementById('btn-save-banner');
+
+      if (selectedId === "NEW") {
+        document.getElementById('banner-title').value = '';
+        document.getElementById('banner-desc').value = '';
+        document.getElementById('banner-img').value = DRIVE_PREFIX;
+        document.getElementById('banner-hours').value = '24';
+        btnDelete.style.display = 'none';
+        btnSave.innerText = "Guardar Banner";
+      } else {
+        let b = storeData.banners.find((item, idx) => (item.id === selectedId || idx.toString() === selectedId));
+        if (b) {
+          document.getElementById('banner-title').value = b.titulo;
+          document.getElementById('banner-desc').value = b.desc;
+          document.getElementById('banner-img').value = b.img;
+          
+          if (b.expireAt) {
+            let remainHours = Math.max(0, Math.round((b.expireAt - Date.now()) / (1000 * 60 * 60)));
+            document.getElementById('banner-hours').value = remainHours;
+          } else {
+            document.getElementById('banner-hours').value = '0';
+          }
+
+          btnDelete.style.display = 'block';
+          btnSave.innerText = "Actualizar Banner";
+        }
+      }
+    }
+
+    function saveBanner() {
       if (!storeData.banners) storeData.banners = [];
-      if (storeData.banners.length >= 5) return alert("Máximo 5 banners activos.");
+      let selectedId = document.getElementById('edit-banner-select').value;
+
+      if (selectedId === "NEW" && storeData.banners.length >= 3) {
+        return alert("Límite alcanzado: Máximo 3 banners activos simultáneamente.");
+      }
 
       let title = document.getElementById('banner-title').value;
       let desc = document.getElementById('banner-desc').value;
       let img = document.getElementById('banner-img').value.trim();
+      let hours = parseFloat(document.getElementById('banner-hours').value) || 0;
 
-      if (!title || !img) return alert("Completa el título y la imagen del banner.");
+      if (!title || !img) return alert("Ingresa el título y la imagen del banner.");
 
-      storeData.banners.push({ titulo: title, desc: desc, img: img });
+      let expireAt = hours > 0 ? Date.now() + (hours * 3600 * 1000) : null;
+
+      if (selectedId === "NEW") {
+        storeData.banners.push({ id: 'b_' + Date.now(), titulo: title, desc: desc, img: img, expireAt: expireAt });
+        alert("Banner publicado exitosamente.");
+      } else {
+        let idx = storeData.banners.findIndex((b, i) => (b.id === selectedId || i.toString() === selectedId));
+        if (idx !== -1) {
+          storeData.banners[idx] = { id: storeData.banners[idx].id || ('b_' + Date.now()), titulo: title, desc: desc, img: img, expireAt: expireAt };
+          alert("Banner actualizado correctamente.");
+        }
+      }
+
       saveToStorage();
-      alert("Banner agregado exitosamente.");
-      document.getElementById('banner-title').value = '';
-      document.getElementById('banner-desc').value = '';
-      document.getElementById('banner-img').value = DRIVE_PREFIX;
+      document.getElementById('edit-banner-select').value = "NEW";
+      loadBannerToEdit();
     }
 
-    function clearBanners() {
-      if (confirm("¿Deseas borrar todos los banners del carrusel?")) {
-        storeData.banners = [];
+    function deleteBanner() {
+      let selectedId = document.getElementById('edit-banner-select').value;
+      if (selectedId === "NEW") return;
+
+      if (confirm("¿Deseas eliminar este banner?")) {
+        storeData.banners = storeData.banners.filter((b, i) => !(b.id === selectedId || i.toString() === selectedId));
         saveToStorage();
-        alert("Banners eliminados.");
+        document.getElementById('edit-banner-select').value = "NEW";
+        loadBannerToEdit();
+        alert("Banner eliminado.");
       }
     }
 
