@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JBstore — Catálogo & Sistema Admin</title>
+  <title>JBstore — Catálogo & Sistema Admin Pro</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -38,37 +38,18 @@
       padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
     }
 
-    /* CARRUSEL DE BANNERS CON NAVEGACIÓN */
-    .banner-container {
-      max-width: 600px; margin: 12px auto 0; padding: 0 16px; position: relative;
-    }
-    .banner-scroll-wrapper {
-      position: relative; border-radius: 12px; overflow: hidden;
-    }
-    .banner-scroll {
-      display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
-      scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;
-    }
+    /* CARRUSEL DE BANNERS */
+    .banner-container { max-width: 600px; margin: 12px auto 0; padding: 0 16px; position: relative; }
+    .banner-scroll-wrapper { position: relative; border-radius: 12px; overflow: hidden; }
+    .banner-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
     .banner-scroll::-webkit-scrollbar { display: none; }
-    .banner-card {
-      min-width: 100%; flex: 0 0 100%; scroll-snap-align: center;
-      border-radius: 12px; overflow: hidden; position: relative;
-      cursor: pointer; border: 1px solid var(--border); background: #000;
-      height: 150px;
-    }
-    .banner-card img {
-      width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.2s;
-    }
+    .banner-card { min-width: 100%; flex: 0 0 100%; scroll-snap-align: center; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid var(--border); background: #000; height: 150px; }
+    .banner-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.2s; }
     .banner-card:hover img { opacity: 1; }
-    .banner-overlay {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.85));
-      padding: 10px; color: #fff;
-    }
+    .banner-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 10px; color: #fff; }
     .banner-title { font-size: 13px; font-weight: 700; }
     .banner-sub { font-size: 11px; color: #e5e7eb; }
 
-    /* Botones de control manual para banners */
     .banner-nav-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(0, 0, 0, 0.5); color: white; border: none;
@@ -78,6 +59,19 @@
     }
     .banner-nav-prev { left: 8px; }
     .banner-nav-next { right: 8px; }
+
+    /* FILTRO DE CATEGORÍAS */
+    .categories-bar {
+      max-width: 600px; margin: 12px auto 0; padding: 0 16px;
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    }
+    .categories-bar::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--card-bg); color: var(--text-muted);
+      cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .cat-btn.active { background: var(--primary); color: #ffffff; border-color: var(--primary); }
 
     .container { max-width: 600px; margin: 0 auto; padding: 16px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
@@ -94,11 +88,13 @@
       font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
     }
 
-    .card-img {
-      width: 100%; height: 150px; object-fit: cover;
-      border-radius: 8px; margin-bottom: 12px; background: #f3f4f6;
+    .badge-out {
+      position: absolute; top: 12px; left: 12px;
+      background: #6b7280; color: #fff; font-size: 10px;
+      font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
     }
 
+    .card-img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; background: #f3f4f6; }
     .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
     .card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
 
@@ -120,14 +116,14 @@
       color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
     }
 
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6); z-index: 100; padding: 20px; overflow-y: auto;
+    .btn-copy {
+      background: #e0e7ff; color: var(--accent); border: 1px solid #bfdbfe;
+      padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      cursor: pointer; margin-left: 6px;
     }
-    .modal-content {
-      background: #ffffff; max-width: 500px; margin: 10px auto;
-      border-radius: 12px; padding: 20px; position: relative;
-    }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; padding: 20px; overflow-y: auto; }
+    .modal-content { background: #ffffff; max-width: 500px; margin: 10px auto; border-radius: 12px; padding: 20px; position: relative; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
 
@@ -137,18 +133,16 @@
       padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
     }
 
-    .receipt-box {
-      border: 1px dashed var(--border); padding: 16px; border-radius: 8px;
-      background: #fdfdfd; font-size: 12px; line-height: 1.5; margin-top: 12px;
-    }
+    .receipt-box { border: 1px dashed var(--border); padding: 16px; border-radius: 8px; background: #fdfdfd; font-size: 12px; line-height: 1.5; margin-top: 12px; }
 
-    /* NOTIFICACIÓN TOAST FLOTANTE */
     .toast-msg {
       display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
       background: #111827; color: #ffffff; padding: 10px 18px; border-radius: 20px;
       font-size: 12px; font-weight: 600; z-index: 90; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center; white-space: nowrap;
     }
+
+    .history-item { border-bottom: 1px solid var(--border); padding: 8px 0; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -157,11 +151,11 @@
 
   <header>
     <h1>JBstore</h1>
-    <p>Catálogo Digital & Tienda Multi-Moneda</p>
+    <p>Catálogo Digital & Tienda Multi-Moneda Pro</p>
     <div class="tasa-badge" id="tasa-display">Tasa del día: -- BS / USDT</div>
   </header>
 
-  <!-- CARRUSEL PUBLICITARIO CON DESPLAZAMIENTO & BOTONES -->
+  <!-- CARRUSEL PUBLICITARIO DE BANNERS -->
   <div class="banner-container">
     <div class="banner-scroll-wrapper">
       <button class="banner-nav-btn banner-nav-prev" onclick="prevBanner()">❮</button>
@@ -170,11 +164,18 @@
     </div>
   </div>
 
+  <!-- FILTROS POR CATEGORÍA -->
+  <div class="categories-bar" id="categories-container">
+    <button class="cat-btn active" onclick="filterCategory('TODOS')">Todos</button>
+    <button class="cat-btn" onclick="filterCategory('Juegos')">🎮 Juegos</button>
+    <button class="cat-btn" onclick="filterCategory('Streaming')">📺 Streaming</button>
+    <button class="cat-btn" onclick="filterCategory('Licencias')">🔑 Licencias</button>
+  </div>
+
   <div class="container">
     <div class="grid" id="products-container"></div>
   </div>
 
-  <!-- NOTIFICACIÓN TOAST -->
   <div class="toast-msg" id="toast"></div>
 
   <div class="footer-bar">
@@ -186,7 +187,7 @@
     <button class="btn" style="width: auto; background: var(--accent);" onclick="openCheckout()">Pagar Pedido</button>
   </div>
 
-  <!-- MODAL NOVEDADES / PROMO -->
+  <!-- MODAL PROMO -->
   <div class="modal" id="promo-modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -196,7 +197,6 @@
       <img id="promo-modal-img" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
       <h4 id="promo-modal-title" style="font-size: 16px; margin-bottom: 8px;"></h4>
       <p id="promo-modal-desc" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;"></p>
-      
       <div style="display: flex; gap: 10px;">
         <button class="btn" style="background: var(--success);" id="btn-go-offer">📲 Ir a la Oferta</button>
         <button class="btn" style="background: #e5e7eb; color: var(--text);" onclick="closeModal('promo-modal')">Cerrar</button>
@@ -221,19 +221,26 @@
 
       <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
         <h4 style="font-size: 13px; margin-bottom: 8px;">Métodos de Pago Aceptados:</h4>
-        <p style="font-size: 12px;" id="payment-methods-info"></p>
-        <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">📌 <i>Al presionar el botón abajo, se abrirá tu WhatsApp para enviar el pedido y adjuntar la captura del pago.</i></p>
+        <div style="font-size: 12px; margin-bottom: 6px;">
+          <b>Pago Móvil:</b> <span id="pm-info-text"></span>
+          <button class="btn-copy" onclick="copyText('pm-info-text')">Copiar</button>
+        </div>
+        <div style="font-size: 12px;">
+          <b>Binance Pay:</b> <span id="binance-info-text"></span>
+          <button class="btn-copy" onclick="copyText('binance-info-text')">Copiar</button>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">📌 <i>Al presionar el botón abajo, se abrirá tu WhatsApp para enviar el pedido y adjuntar la captura del pago.</i></p>
       </div>
 
       <button class="btn" style="background: var(--success);" onclick="submitOrder()">📲 Enviar Pedido por WhatsApp</button>
     </div>
   </div>
 
-  <!-- MODAL ADMIN -->
+  <!-- MODAL ADMIN PRO -->
   <div class="modal" id="admin-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>⚙️ Panel Administrador</h3>
+        <h3>⚙️ Panel Administrador Pro</h3>
         <button class="close-btn" onclick="closeModal('admin-modal')">&times;</button>
       </div>
 
@@ -264,12 +271,21 @@
 
         <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
 
-        <h4>2. Gestión de Artículos (Crear / Editar)</h4>
+        <h4>2. Gestión de Artículos (Crear / Editar / Stock)</h4>
         
         <div class="field-group">
           <label>Seleccionar Artículo para Editar (o dejar en Nuevo):</label>
           <select id="edit-prod-select" onchange="loadProductToEdit()">
             <option value="NEW">➕ -- CREAR NUEVO ARTÍCULO --</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Categoría del Producto:</label>
+          <select id="prod-category">
+            <option value="Juegos">🎮 Juegos</option>
+            <option value="Streaming">📺 Streaming</option>
+            <option value="Licencias">🔑 Licencias</option>
           </select>
         </div>
 
@@ -282,16 +298,21 @@
           <input type="text" id="prod-desc" placeholder="Ej: Recargas directas por ID">
         </div>
         <div class="field-group">
-          <label>URL de Imagen (Drive pre-configurado, solo coloca el ID al final):</label>
-          <input type="text" id="prod-img" value="https://drive.google.com/uc?export=view&id=" placeholder="URL o ID de Google Drive">
+          <label>URL de Imagen (Drive pre-configurado):</label>
+          <input type="text" id="prod-img" value="https://drive.google.com/uc?export=view&id=">
         </div>
         <div class="field-group">
           <label>Variantes (Opción:PrecioUSDT separado por coma):</label>
           <input type="text" id="prod-variants" placeholder="Ej: 80 Robux:1.50, 400 Robux:5.50">
         </div>
-        <div class="field-group" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="prod-offer" style="width: auto;">
-          <label for="prod-offer" style="margin: 0;">¿Marcar como Oferta / Descuento?</label>
+
+        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px;">
+            <input type="checkbox" id="prod-offer" style="width: auto;"> ¿Es Oferta?
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--danger);">
+            <input type="checkbox" id="prod-out" style="width: auto;"> ¿Marcar Agotado?
+          </label>
         </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
@@ -302,51 +323,60 @@
         <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
 
         <h4>3. Banners Promocionales (Máximo 3)</h4>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Crea o edita los banners del carrusel de inicio y define su tiempo de caducidad en horas.</p>
-        
         <div class="field-group">
-          <label>Seleccionar Banner para Editar (o dejar en Nuevo):</label>
           <select id="edit-banner-select" onchange="loadBannerToEdit()">
             <option value="NEW">➕ -- CREAR NUEVO BANNER --</option>
           </select>
         </div>
-
         <div class="field-group">
-          <label>Título de la Promo/Novedad:</label>
-          <input type="text" id="banner-title" placeholder="Ej: ¡Oferta Especial Fin de Semana!">
+          <label>Título de la Promo:</label>
+          <input type="text" id="banner-title" placeholder="Ej: ¡Oferta Fin de Semana!">
         </div>
         <div class="field-group">
           <label>Detalle Extenso de la Promo:</label>
-          <input type="text" id="banner-desc" placeholder="Ej: Obten 10% adicional en robux pagando con Binance Pay...">
+          <input type="text" id="banner-desc" placeholder="Ej: Recibe bonificación especial...">
         </div>
         <div class="field-group">
           <label>Imagen Banner (URL o ID de Drive):</label>
           <input type="text" id="banner-img" value="https://drive.google.com/uc?export=view&id=">
         </div>
         <div class="field-group">
-          <label>Tiempo de Vida Útil (en Horas, ej: 24 para 1 día / 0 = sin límite):</label>
-          <input type="number" id="banner-hours" placeholder="Ej: 24" value="24">
+          <label>Duración (en Horas / 0 = Indefinido):</label>
+          <input type="number" id="banner-hours" placeholder="24" value="24">
         </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
           <button class="btn" style="background: var(--accent);" id="btn-save-banner" onclick="saveBanner()">Guardar Banner</button>
-          <button class="btn" style="background: var(--danger); display: none;" id="btn-delete-banner" onclick="deleteBanner()">Eliminar Banner</button>
+          <button class="btn" style="background: var(--danger); display: none;" id="btn-delete-banner" onclick="deleteBanner()">Eliminar</button>
         </div>
 
         <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
 
-        <h4>4. Generar Nota de Entrega</h4>
+        <h4>4. Historial de Ventas & Notas de Entrega</h4>
+        <div id="sales-history-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 12px; background: var(--card-bg); padding: 8px; border-radius: 8px;">
+          <p style="font-size: 11px; color: var(--text-muted);">Sin ventas registradas aún.</p>
+        </div>
+
         <div class="field-group">
-          <label>Nombre del Cliente:</label>
+          <label>Nombre del Cliente para Recibo:</label>
           <input type="text" id="receipt-client-name" placeholder="Ej: Juan Pérez">
         </div>
         <div class="field-group">
           <label>Detalle del Producto Entregado:</label>
-          <input type="text" id="receipt-item-detail" placeholder="Ej: Licencia Roblox 400 Robux">
+          <input type="text" id="receipt-item-detail" placeholder="Ej: 400 Robux">
         </div>
-        <button class="btn" style="background: var(--primary);" onclick="generateReceipt()">Generar Recibo</button>
-
+        <button class="btn" style="background: var(--primary); margin-bottom: 16px;" onclick="generateReceipt()">Generar Nota de Entrega</button>
         <div id="receipt-output"></div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>5. Respaldos (Exportar / Importar Tienda)</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Guarda una copia de todos tus productos y tasa para restaurarlos cuando quieras.</p>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn" style="background: #3b82f6;" onclick="exportData()">📥 Exportar Respaldo</button>
+          <button class="btn" style="background: #8b5cf6;" onclick="triggerImport()">📤 Importar Respaldo</button>
+          <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
+        </div>
       </div>
     </div>
   </div>
@@ -359,6 +389,7 @@
       tasaBs: 45.00,
       pagoMovil: "Banco de Venezuela | 0414-0000000 | V-12345678",
       binanceId: "123456789 (JBstore)",
+      ventas: [],
       banners: [
         {
           id: "b1",
@@ -371,10 +402,12 @@
       productos: [
         {
           id: "1",
+          categoria: "Juegos",
           titulo: "Roblox — Robux",
           desc: "Recargas directas a tu cuenta",
           img: "https://via.placeholder.com/300x150",
           esOferta: true,
+          esAgotado: false,
           variantes: [
             { nombre: "80 Robux", usdt: 1.50 },
             { nombre: "400 Robux", usdt: 5.50 },
@@ -385,6 +418,7 @@
     };
 
     let cart = null;
+    let currentCategory = "TODOS";
     let autoScrollTimer = null;
 
     function cleanExpiredBanners() {
@@ -398,17 +432,24 @@
       renderStore();
       populateAdminProductDropdown();
       populateAdminBannerDropdown();
+      renderSalesHistory();
+    }
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.toggle('active', b.innerText.includes(cat) || (cat === 'TODOS' && b.innerText === 'Todos'));
+      });
+      renderStore();
     }
 
     function renderStore() {
       cleanExpiredBanners();
       document.getElementById('tasa-display').innerText = `Tasa del día: ${storeData.tasaBs.toFixed(2)} BS / USDT`;
-      document.getElementById('payment-methods-info').innerHTML = `
-        <b>Pago Móvil:</b> ${storeData.pagoMovil}<br>
-        <b>Binance Pay:</b> ${storeData.binanceId}
-      `;
+      document.getElementById('pm-info-text').innerText = storeData.pagoMovil;
+      document.getElementById('binance-info-text').innerText = storeData.binanceId;
 
-      // Render Banners
+      // Banners
       const bannersList = document.getElementById('banners-list');
       bannersList.innerHTML = '';
       if (storeData.banners && storeData.banners.length > 0) {
@@ -430,12 +471,16 @@
         stopAutoScroll();
       }
 
-      // Render Productos
+      // Productos con filtro por Categoría
       const grid = document.getElementById('products-container');
       grid.innerHTML = '';
 
-      storeData.productos.forEach((p, idx) => {
-        let badge = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
+      let prodsFiltered = storeData.productos.filter(p => currentCategory === "TODOS" || (p.categoria && p.categoria === currentCategory));
+
+      prodsFiltered.forEach((p, idx) => {
+        let badgeOffer = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
+        let badgeOut = p.esAgotado ? `<div class="badge-out">Agotado</div>` : '';
+        
         let options = p.variantes.map((v) => {
           let bs = (v.usdt * storeData.tasaBs).toFixed(2);
           return `<option value="${v.usdt}" data-name="${v.nombre}">${v.nombre} — ${v.usdt.toFixed(2)} USDT (~${bs} BS)</option>`;
@@ -445,15 +490,16 @@
         let initBs = (initUsdt * storeData.tasaBs).toFixed(2);
 
         grid.innerHTML += `
-          <div class="card">
-            ${badge}
+          <div class="card" style="${p.esAgotado ? 'opacity: 0.75;' : ''}">
+            ${badgeOffer}
+            ${badgeOut}
             <div>
               <img src="${p.img}" class="card-img" alt="${p.titulo}">
               <div class="card-title">${p.titulo}</div>
               <div class="card-desc">${p.desc}</div>
               <div class="field-group">
                 <label>Selecciona Opción:</label>
-                <select id="sel-${idx}" onchange="updatePrice(${idx})">${options}</select>
+                <select id="sel-${idx}" onchange="updatePrice(${idx})" ${p.esAgotado ? 'disabled' : ''}>${options}</select>
               </div>
             </div>
             <div>
@@ -461,14 +507,21 @@
                 <div class="price-usdt" id="usdt-${idx}">${initUsdt.toFixed(2)} USDT</div>
                 <div class="price-bs" id="bs-${idx}">~ ${initBs} BS</div>
               </div>
-              <button class="btn" onclick="addToCart(${idx})">Seleccionar Pedido</button>
+              <button class="btn" style="${p.esAgotado ? 'background: #9ca3af; cursor: not-allowed;' : ''}" onclick="addToCart(${idx})" ${p.esAgotado ? 'disabled' : ''}>
+                ${p.esAgotado ? 'Agotado Temporalmente' : 'Seleccionar Pedido'}
+              </button>
             </div>
           </div>
         `;
       });
     }
 
-    /* CONTROLES DE CARRUSEL BANNERS */
+    function copyText(elemId) {
+      const txt = document.getElementById(elemId).innerText;
+      navigator.clipboard.writeText(txt);
+      showToast("📋 Copiado al portapapeles");
+    }
+
     function nextBanner() {
       const container = document.getElementById('banners-list');
       if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
@@ -487,16 +540,8 @@
       }
     }
 
-    function startAutoScroll() {
-      stopAutoScroll();
-      if (storeData.banners && storeData.banners.length > 1) {
-        autoScrollTimer = setInterval(nextBanner, 4000);
-      }
-    }
-
-    function stopAutoScroll() {
-      if (autoScrollTimer) clearInterval(autoScrollTimer);
-    }
+    function startAutoScroll() { stopAutoScroll(); if (storeData.banners && storeData.banners.length > 1) autoScrollTimer = setInterval(nextBanner, 4000); }
+    function stopAutoScroll() { if (autoScrollTimer) clearInterval(autoScrollTimer); }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -510,12 +555,8 @@
       document.getElementById('promo-modal-img').src = b.img;
       document.getElementById('promo-modal-title').innerText = b.titulo;
       document.getElementById('promo-modal-desc').innerText = b.desc;
-      
       let msg = encodeURIComponent(`Hola JBstore, vi esta oferta en tu catálogo web y me interesa comprar:\n📢 *${b.titulo}*\n\n¿Tienen disponibilidad?`);
-      document.getElementById('btn-go-offer').onclick = function() {
-        window.open(`https://wa.me/${PHONE_NUMBER}?text=${msg}`, '_blank');
-      };
-
+      document.getElementById('btn-go-offer').onclick = function() { window.open(`https://wa.me/${PHONE_NUMBER}?text=${msg}`, '_blank'); };
       openModal('promo-modal');
     }
 
@@ -553,19 +594,22 @@
 
     function submitOrder() {
       let accountData = document.getElementById('client-account-data').value.trim();
+      if (!accountData) return alert("Por favor ingresa los datos de tu cuenta o usuario para procesar el pedido.");
 
-      if (!accountData) {
-        return alert("Por favor ingresa los datos de tu cuenta o usuario para procesar el pedido.");
-      }
+      // Registrar venta en el historial
+      if (!storeData.ventas) storeData.ventas = [];
+      storeData.ventas.unshift({
+        fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        producto: `${cart.titulo} (${cart.opcion})`,
+        montoUsdt: cart.usdt,
+        montoBs: cart.bs
+      });
+      saveToStorage();
 
       let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n💰 *Monto a pagar:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS (Tasa: ${storeData.tasaBs} BS)\n\n👤 *Datos de la Cuenta:* \n${accountData}\n\n📷 *Adjunto la captura de pago a continuación.*`;
       
       let tg = window.Telegram?.WebApp;
-      if (tg && tg.sendData) {
-        tg.sendData(text);
-      } else {
-        window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
-      }
+      if (tg && tg.sendData) { tg.sendData(text); } else { window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`, '_blank'); }
       closeModal('checkout-modal');
     }
 
@@ -581,6 +625,7 @@
         document.getElementById('admin-binance').value = storeData.binanceId;
         populateAdminProductDropdown();
         populateAdminBannerDropdown();
+        renderSalesHistory();
       } else { alert("PIN Incorrecto"); }
     }
 
@@ -592,13 +637,26 @@
       alert("Tasa y datos de pago actualizados.");
     }
 
+    /* HISTORIAL DE VENTAS */
+    function renderSalesHistory() {
+      const box = document.getElementById('sales-history-list');
+      if (!storeData.ventas || storeData.ventas.length === 0) {
+        box.innerHTML = '<p style="font-size: 11px; color: var(--text-muted);">Sin ventas registradas aún.</p>';
+        return;
+      }
+      box.innerHTML = storeData.ventas.slice(0, 10).map(v => `
+        <div class="history-item">
+          <b>${v.fecha}</b> — ${v.producto}<br>
+          <span style="color:var(--success); font-weight:700;">${v.montoUsdt.toFixed(2)} USDT (${v.montoBs} BS)</span>
+        </div>
+      `).join('');
+    }
+
     /* GESTIÓN DE PRODUCTOS */
     function populateAdminProductDropdown() {
       let sel = document.getElementById('edit-prod-select');
       sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO ARTÍCULO --</option>';
-      storeData.productos.forEach(p => {
-        sel.innerHTML += `<option value="${p.id}">✏️ ${p.titulo}</option>`;
-      });
+      storeData.productos.forEach(p => { sel.innerHTML += `<option value="${p.id}">✏️ ${p.titulo}</option>`; });
       loadProductToEdit();
     }
 
@@ -608,21 +666,25 @@
       let btnSave = document.getElementById('btn-save-prod');
 
       if (selectedId === "NEW") {
+        document.getElementById('prod-category').value = 'Juegos';
         document.getElementById('prod-title').value = '';
         document.getElementById('prod-desc').value = '';
         document.getElementById('prod-img').value = DRIVE_PREFIX;
         document.getElementById('prod-variants').value = '';
         document.getElementById('prod-offer').checked = false;
+        document.getElementById('prod-out').checked = false;
         btnDelete.style.display = 'none';
         btnSave.innerText = "Guardar Artículo";
       } else {
         let p = storeData.productos.find(prod => prod.id === selectedId);
         if (p) {
+          document.getElementById('prod-category').value = p.categoria || 'Juegos';
           document.getElementById('prod-title').value = p.titulo;
           document.getElementById('prod-desc').value = p.desc;
           document.getElementById('prod-img').value = p.img;
           document.getElementById('prod-variants').value = p.variantes.map(v => `${v.nombre}:${v.usdt}`).join(', ');
           document.getElementById('prod-offer').checked = p.esOferta || false;
+          document.getElementById('prod-out').checked = p.esAgotado || false;
           btnDelete.style.display = 'block';
           btnSave.innerText = "Actualizar Cambios";
         }
@@ -631,11 +693,13 @@
 
     function saveProduct() {
       let selectedId = document.getElementById('edit-prod-select').value;
+      let category = document.getElementById('prod-category').value;
       let title = document.getElementById('prod-title').value;
       let desc = document.getElementById('prod-desc').value;
       let img = document.getElementById('prod-img').value.trim() || "https://via.placeholder.com/300x150";
       let rawVar = document.getElementById('prod-variants').value;
       let isOffer = document.getElementById('prod-offer').checked;
+      let isOut = document.getElementById('prod-out').checked;
 
       if (!title || !rawVar) return alert("Ingresa el título y las variantes.");
 
@@ -645,12 +709,12 @@
       });
 
       if (selectedId === "NEW") {
-        storeData.productos.push({ id: Date.now().toString(), titulo: title, desc, img, esOferta: isOffer, variantes: vars });
+        storeData.productos.push({ id: Date.now().toString(), categoria: category, titulo: title, desc, img, esOferta: isOffer, esAgotado: isOut, variantes: vars });
         alert("Nuevo artículo creado exitosamente.");
       } else {
         let idx = storeData.productos.findIndex(p => p.id === selectedId);
         if (idx !== -1) {
-          storeData.productos[idx] = { id: selectedId, titulo: title, desc, img, esOferta: isOffer, variantes: vars };
+          storeData.productos[idx] = { id: selectedId, categoria: category, titulo: title, desc, img, esOferta: isOffer, esAgotado: isOut, variantes: vars };
           alert("Artículo actualizado correctamente.");
         }
       }
@@ -663,8 +727,7 @@
     function deleteProduct() {
       let selectedId = document.getElementById('edit-prod-select').value;
       if (selectedId === "NEW") return;
-
-      if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+      if (confirm("¿Estás seguro de eliminar este producto?")) {
         storeData.productos = storeData.productos.filter(p => p.id !== selectedId);
         saveToStorage();
         document.getElementById('edit-prod-select').value = "NEW";
@@ -678,9 +741,7 @@
       let sel = document.getElementById('edit-banner-select');
       sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO BANNER --</option>';
       if (storeData.banners) {
-        storeData.banners.forEach((b, idx) => {
-          sel.innerHTML += `<option value="${b.id || idx}">🖼️ ${b.titulo}</option>`;
-        });
+        storeData.banners.forEach((b, idx) => { sel.innerHTML += `<option value="${b.id || idx}">🖼️ ${b.titulo}</option>`; });
       }
       loadBannerToEdit();
     }
@@ -703,14 +764,7 @@
           document.getElementById('banner-title').value = b.titulo;
           document.getElementById('banner-desc').value = b.desc;
           document.getElementById('banner-img').value = b.img;
-          
-          if (b.expireAt) {
-            let remainHours = Math.max(0, Math.round((b.expireAt - Date.now()) / (1000 * 60 * 60)));
-            document.getElementById('banner-hours').value = remainHours;
-          } else {
-            document.getElementById('banner-hours').value = '0';
-          }
-
+          document.getElementById('banner-hours').value = b.expireAt ? Math.max(0, Math.round((b.expireAt - Date.now()) / (1000 * 60 * 60))) : '0';
           btnDelete.style.display = 'block';
           btnSave.innerText = "Actualizar Banner";
         }
@@ -720,41 +774,34 @@
     function saveBanner() {
       if (!storeData.banners) storeData.banners = [];
       let selectedId = document.getElementById('edit-banner-select').value;
-
-      if (selectedId === "NEW" && storeData.banners.length >= 3) {
-        return alert("Límite alcanzado: Máximo 3 banners activos simultáneamente.");
-      }
+      if (selectedId === "NEW" && storeData.banners.length >= 3) return alert("Máximo 3 banners activos.");
 
       let title = document.getElementById('banner-title').value;
       let desc = document.getElementById('banner-desc').value;
       let img = document.getElementById('banner-img').value.trim();
       let hours = parseFloat(document.getElementById('banner-hours').value) || 0;
 
-      if (!title || !img) return alert("Ingresa el título y la imagen del banner.");
+      if (!title || !img) return alert("Ingresa título e imagen.");
 
       let expireAt = hours > 0 ? Date.now() + (hours * 3600 * 1000) : null;
 
       if (selectedId === "NEW") {
         storeData.banners.push({ id: 'b_' + Date.now(), titulo: title, desc: desc, img: img, expireAt: expireAt });
-        alert("Banner publicado exitosamente.");
       } else {
         let idx = storeData.banners.findIndex((b, i) => (b.id === selectedId || i.toString() === selectedId));
-        if (idx !== -1) {
-          storeData.banners[idx] = { id: storeData.banners[idx].id || ('b_' + Date.now()), titulo: title, desc: desc, img: img, expireAt: expireAt };
-          alert("Banner actualizado correctamente.");
-        }
+        if (idx !== -1) storeData.banners[idx] = { id: storeData.banners[idx].id || ('b_' + Date.now()), titulo: title, desc: desc, img: img, expireAt: expireAt };
       }
 
       saveToStorage();
       document.getElementById('edit-banner-select').value = "NEW";
       loadBannerToEdit();
+      alert("Banner guardado.");
     }
 
     function deleteBanner() {
       let selectedId = document.getElementById('edit-banner-select').value;
       if (selectedId === "NEW") return;
-
-      if (confirm("¿Deseas eliminar este banner?")) {
+      if (confirm("¿Eliminar este banner?")) {
         storeData.banners = storeData.banners.filter((b, i) => !(b.id === selectedId || i.toString() === selectedId));
         saveToStorage();
         document.getElementById('edit-banner-select').value = "NEW";
@@ -763,11 +810,40 @@
       }
     }
 
+    /* RESPALDOS (EXPORT / IMPORT) */
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `JBstore_Respaldo_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function triggerImport() { document.getElementById('import-file').click(); }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.productos) {
+            storeData = imported;
+            saveToStorage();
+            alert("¡Respaldo restaurado con éxito!");
+          } else { alert("El archivo no es un respaldo válido de JBstore."); }
+        } catch (err) { alert("Error al leer el archivo JSON."); }
+      };
+      reader.readAsText(file);
+    }
+
     function generateReceipt() {
       let client = document.getElementById('receipt-client-name').value;
       let item = document.getElementById('receipt-item-detail').value;
-
-      if (!client || !item) return alert("Ingresa el nombre del cliente y el detalle.");
+      if (!client || !item) return alert("Ingresa nombre de cliente y detalle.");
 
       document.getElementById('receipt-output').innerHTML = `
         <div class="receipt-box">
