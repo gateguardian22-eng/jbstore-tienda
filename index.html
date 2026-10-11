@@ -355,4 +355,267 @@
       document.getElementById('tasa-display').innerText = `Tasa del día: ${storeData.tasaBs.toFixed(2)} BS / USDT`;
       document.getElementById('payment-methods-info').innerHTML = `
         <b>Pago Móvil:</b> ${storeData.pagoMovil}<br>
-        <b>Binance
+        <b>Binance Pay:</b> ${storeData.binanceId}
+      `;
+
+      // Render Banners
+      const bannersList = document.getElementById('banners-list');
+      bannersList.innerHTML = '';
+      if (storeData.banners && storeData.banners.length > 0) {
+        storeData.banners.forEach((b, bIdx) => {
+          bannersList.innerHTML += `
+            <div class="banner-card" onclick="openPromoModal(${bIdx})">
+              <img src="${b.img}" alt="Banner">
+              <div class="banner-overlay">
+                <div class="banner-title">${b.titulo}</div>
+                <div class="banner-sub">Toca para ver novedad ➔</div>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        document.querySelector('.banner-container').style.display = 'none';
+      }
+
+      // Render Productos
+      const grid = document.getElementById('products-container');
+      grid.innerHTML = '';
+
+      storeData.productos.forEach((p, idx) => {
+        let badge = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
+        let options = p.variantes.map((v) => {
+          let bs = (v.usdt * storeData.tasaBs).toFixed(2);
+          return `<option value="${v.usdt}" data-name="${v.nombre}">${v.nombre} — ${v.usdt.toFixed(2)} USDT (~${bs} BS)</option>`;
+        }).join('');
+
+        let initUsdt = p.variantes[0].usdt;
+        let initBs = (initUsdt * storeData.tasaBs).toFixed(2);
+
+        grid.innerHTML += `
+          <div class="card">
+            ${badge}
+            <div>
+              <img src="${p.img}" class="card-img" alt="${p.titulo}">
+              <div class="card-title">${p.titulo}</div>
+              <div class="card-desc">${p.desc}</div>
+              <div class="field-group">
+                <label>Selecciona Opción:</label>
+                <select id="sel-${idx}" onchange="updatePrice(${idx})">${options}</select>
+              </div>
+            </div>
+            <div>
+              <div class="price-box">
+                <div class="price-usdt" id="usdt-${idx}">${initUsdt.toFixed(2)} USDT</div>
+                <div class="price-bs" id="bs-${idx}">~ ${initBs} BS</div>
+              </div>
+              <button class="btn" onclick="addToCart(${idx})">Seleccionar Pedido</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function openPromoModal(bIdx) {
+      let b = storeData.banners[bIdx];
+      document.getElementById('promo-modal-img').src = b.img;
+      document.getElementById('promo-modal-title').innerText = b.titulo;
+      document.getElementById('promo-modal-desc').innerText = b.desc;
+      openModal('promo-modal');
+    }
+
+    function updatePrice(idx) {
+      let sel = document.getElementById(`sel-${idx}`);
+      let usdt = parseFloat(sel.value);
+      let bs = (usdt * storeData.tasaBs).toFixed(2);
+      document.getElementById(`usdt-${idx}`).innerText = `${usdt.toFixed(2)} USDT`;
+      document.getElementById(`bs-${idx}`).innerText = `~ ${bs} BS`;
+    }
+
+    function addToCart(idx) {
+      let p = storeData.productos[idx];
+      let sel = document.getElementById(`sel-${idx}`);
+      let opt = sel.options[sel.selectedIndex];
+      let usdt = parseFloat(sel.value);
+      let bs = (usdt * storeData.tasaBs).toFixed(2);
+
+      cart = { titulo: p.titulo, opcion: opt.getAttribute('data-name'), usdt, bs };
+      document.getElementById('cart-usdt').innerText = `${usdt.toFixed(2)} USDT`;
+      document.getElementById('cart-bs').innerText = `~ ${bs} BS`;
+    }
+
+    function openCheckout() {
+      if (!cart) return alert("Selecciona un producto primero.");
+      document.getElementById('checkout-summary').innerHTML = `
+        <b>Producto:</b> ${cart.titulo}<br>
+        <b>Opción:</b> ${cart.opcion}<br>
+        <b>Monto:</b> ${cart.usdt.toFixed(2)} USDT (${cart.bs} BS)
+      `;
+      openModal('checkout-modal');
+    }
+
+    function submitOrder() {
+      let email = document.getElementById('client-email').value;
+      let ref = document.getElementById('client-ref').value;
+
+      if (!email || !ref) return alert("Por favor ingresa tu correo y número de referencia.");
+
+      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n💰 *Monto:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS\n📧 *Correo:* ${email}\n🔢 *Referencia:* ${ref}`;
+      
+      let tg = window.Telegram?.WebApp;
+      if (tg && tg.sendData) {
+        tg.sendData(text);
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      }
+      closeModal('checkout-modal');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function authAdmin() {
+      if (document.getElementById('admin-pin').value === "1234") {
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-body').style.display = 'block';
+        document.getElementById('admin-tasa').value = storeData.tasaBs;
+        document.getElementById('admin-pm').value = storeData.pagoMovil;
+        document.getElementById('admin-binance').value = storeData.binanceId;
+        populateAdminProductDropdown();
+      } else { alert("PIN Incorrecto"); }
+    }
+
+    function saveSettings() {
+      storeData.tasaBs = parseFloat(document.getElementById('admin-tasa').value) || storeData.tasaBs;
+      storeData.pagoMovil = document.getElementById('admin-pm').value;
+      storeData.binanceId = document.getElementById('admin-binance').value;
+      saveToStorage();
+      alert("Tasa y datos de pago actualizados.");
+    }
+
+    function populateAdminProductDropdown() {
+      let sel = document.getElementById('edit-prod-select');
+      sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO ARTÍCULO --</option>';
+      storeData.productos.forEach(p => {
+        sel.innerHTML += `<option value="${p.id}">✏️ ${p.titulo}</option>`;
+      });
+      loadProductToEdit();
+    }
+
+    function loadProductToEdit() {
+      let selectedId = document.getElementById('edit-prod-select').value;
+      let btnDelete = document.getElementById('btn-delete-prod');
+      let btnSave = document.getElementById('btn-save-prod');
+
+      if (selectedId === "NEW") {
+        document.getElementById('prod-title').value = '';
+        document.getElementById('prod-desc').value = '';
+        document.getElementById('prod-img').value = DRIVE_PREFIX;
+        document.getElementById('prod-variants').value = '';
+        document.getElementById('prod-offer').checked = false;
+        btnDelete.style.display = 'none';
+        btnSave.innerText = "Guardar Artículo";
+      } else {
+        let p = storeData.productos.find(prod => prod.id === selectedId);
+        if (p) {
+          document.getElementById('prod-title').value = p.titulo;
+          document.getElementById('prod-desc').value = p.desc;
+          document.getElementById('prod-img').value = p.img;
+          document.getElementById('prod-variants').value = p.variantes.map(v => `${v.nombre}:${v.usdt}`).join(', ');
+          document.getElementById('prod-offer').checked = p.esOferta || false;
+          btnDelete.style.display = 'block';
+          btnSave.innerText = "Actualizar Cambios";
+        }
+      }
+    }
+
+    function saveProduct() {
+      let selectedId = document.getElementById('edit-prod-select').value;
+      let title = document.getElementById('prod-title').value;
+      let desc = document.getElementById('prod-desc').value;
+      let img = document.getElementById('prod-img').value.trim() || "https://via.placeholder.com/300x150";
+      let rawVar = document.getElementById('prod-variants').value;
+      let isOffer = document.getElementById('prod-offer').checked;
+
+      if (!title || !rawVar) return alert("Ingresa el título y las variantes.");
+
+      let vars = rawVar.split(',').map(v => {
+        let [n, p] = v.split(':');
+        return { nombre: n.trim(), usdt: parseFloat(p.trim()) };
+      });
+
+      if (selectedId === "NEW") {
+        storeData.productos.push({ id: Date.now().toString(), titulo: title, desc, img, esOferta: isOffer, variantes: vars });
+        alert("Nuevo artículo creado exitosamente.");
+      } else {
+        let idx = storeData.productos.findIndex(p => p.id === selectedId);
+        if (idx !== -1) {
+          storeData.productos[idx] = { id: selectedId, titulo: title, desc, img, esOferta: isOffer, variantes: vars };
+          alert("Artículo actualizado correctamente.");
+        }
+      }
+
+      saveToStorage();
+      document.getElementById('edit-prod-select').value = "NEW";
+      loadProductToEdit();
+    }
+
+    function deleteProduct() {
+      let selectedId = document.getElementById('edit-prod-select').value;
+      if (selectedId === "NEW") return;
+
+      if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+        storeData.productos = storeData.productos.filter(p => p.id !== selectedId);
+        saveToStorage();
+        document.getElementById('edit-prod-select').value = "NEW";
+        loadProductToEdit();
+        alert("Producto eliminado.");
+      }
+    }
+
+    function addBanner() {
+      if (!storeData.banners) storeData.banners = [];
+      if (storeData.banners.length >= 5) return alert("Máximo 5 banners activos.");
+
+      let title = document.getElementById('banner-title').value;
+      let desc = document.getElementById('banner-desc').value;
+      let img = document.getElementById('banner-img').value.trim();
+
+      if (!title || !img) return alert("Completa el título y la imagen del banner.");
+
+      storeData.banners.push({ titulo: title, desc: desc, img: img });
+      saveToStorage();
+      alert("Banner agregado exitosamente.");
+      document.getElementById('banner-title').value = '';
+      document.getElementById('banner-desc').value = '';
+      document.getElementById('banner-img').value = DRIVE_PREFIX;
+    }
+
+    function clearBanners() {
+      if (confirm("¿Deseas borrar todos los banners del carrusel?")) {
+        storeData.banners = [];
+        saveToStorage();
+        alert("Banners eliminados.");
+      }
+    }
+
+    function generateReceipt() {
+      let client = document.getElementById('receipt-client-name').value;
+      let item = document.getElementById('receipt-item-detail').value;
+
+      if (!client || !item) return alert("Ingresa el nombre del cliente y el detalle.");
+
+      document.getElementById('receipt-output').innerHTML = `
+        <div class="receipt-box">
+          <h3 style="text-align:center; margin-bottom:8px;">📄 NOTA DE ENTREGA — JBstore</h3>
+          <b>Cliente:</b> ${client}<br>
+          <b>Ítem Entregado:</b> ${item}<br>
+          <b>Fecha:</b> ${new Date().toLocaleDateString()}<br><br>
+          <i>Garantía & Descargo de Responsabilidad: JBstore certifica la entrega del ítem digital contratado. No nos hacemos responsables por mal uso, bloqueos externos o modificaciones realizadas tras la entrega del servicio.</i>
+        </div>
+      `;
+    }
+
+    renderStore();
+  </script>
+</body>
+</html>
