@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JBstore — Catálogo & Sistema Admin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --primary: #111827;
+      --accent: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --bg: #ffffff;
+      --card-bg: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --text-muted: #6b7280;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+
+    header {
+      background: #ffffff; border-bottom: 1px solid var(--border);
+      padding: 16px; text-align: center; position: sticky; top: 0; z-index: 10;
+    }
+
+    .tasa-badge {
+      display: inline-block; background: #eff6ff; color: var(--accent);
+      border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; margin-top: 6px;
+    }
+
+    .admin-btn-fixed {
+      position: fixed; top: 12px; right: 12px; z-index: 20;
+      background: var(--primary); color: #fff; border: none;
+      padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
+    }
+
+    .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    .card {
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; position: relative;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+
+    .badge-offer {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--danger); color: #fff; font-size: 10px;
+      font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
+    }
+
+    .card-img {
+      width: 100%; height: 150px; object-fit: cover;
+      border-radius: 8px; margin-bottom: 12px; background: #f3f4f6;
+    }
+
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+    .field-group { margin-bottom: 12px; }
+    .field-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+
+    select, input, textarea {
+      width: 100%; padding: 10px; font-size: 14px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--card-bg); color: var(--text); outline: none;
+    }
+
+    .price-box { margin-bottom: 12px; }
+    .price-usdt { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .price-bs { font-size: 13px; font-weight: 600; color: var(--success); }
+
+    .btn {
+      width: 100%; padding: 12px; background: var(--primary);
+      color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); z-index: 100; padding: 20px; overflow-y: auto;
+    }
+    .modal-content {
+      background: #ffffff; max-width: 500px; margin: 10px auto;
+      border-radius: 12px; padding: 20px; position: relative;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
+
+    .footer-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #ffffff; border-top: 1px solid var(--border);
+      padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .receipt-box {
+      border: 1px dashed var(--border); padding: 16px; border-radius: 8px;
+      background: #fdfdfd; font-size: 12px; line-height: 1.5; margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="admin-btn-fixed" onclick="openModal('admin-modal')">⚙️ Admin</button>
+
+  <header>
+    <h1>JBstore</h1>
+    <p>Catálogo Digital & Tienda Multi-Moneda</p>
+    <div class="tasa-badge" id="tasa-display">Tasa del día: -- BS / USDT</div>
+  </header>
+
+  <div class="container">
+    <div class="grid" id="products-container"></div>
+  </div>
+
+  <div class="footer-bar">
+    <div>
+      <div style="font-size: 11px; color: var(--text-muted);">Total Seleccionado:</div>
+      <div id="cart-usdt" style="font-size: 16px; font-weight: 800;">0.00 USDT</div>
+      <div id="cart-bs" style="font-size: 12px; color: var(--success); font-weight: 600;">~ 0.00 BS</div>
+    </div>
+    <button class="btn" style="width: auto; background: var(--accent);" onclick="openCheckout()">Pagar Pedido</button>
+  </div>
+
+  <!-- MODAL CHECKOUT CLIENTE -->
+  <div class="modal" id="checkout-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🛒 Confirmar y Pagar</h3>
+        <button class="close-btn" onclick="closeModal('checkout-modal')">&times;</button>
+      </div>
+
+      <div id="checkout-summary" style="margin-bottom: 16px; font-size: 14px;"></div>
+
+      <div class="field-group">
+        <label>Correo Electrónico (Para recibir datos/cuenta):</label>
+        <input type="email" id="client-email" placeholder="ejemplo@gmail.com" required>
+      </div>
+
+      <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+        <h4 style="font-size: 13px; margin-bottom: 8px;">Métodos de Pago:</h4>
+        <p style="font-size: 12px;" id="payment-methods-info"></p>
+      </div>
+
+      <div class="field-group">
+        <label>Número de Referencia / Comprobante:</label>
+        <input type="text" id="client-ref" placeholder="Ej: 84920492">
+      </div>
+
+      <button class="btn" style="background: var(--success);" onclick="submitOrder()">Enviar Pedido por WhatsApp / Telegram</button>
+    </div>
+  </div>
+
+  <!-- MODAL ADMIN -->
+  <div class="modal" id="admin-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ Panel Administrador</h3>
+        <button class="close-btn" onclick="closeModal('admin-modal')">&times;</button>
+      </div>
+
+      <div id="admin-auth">
+        <div class="field-group">
+          <label>PIN de Acceso:</label>
+          <input type="password" id="admin-pin" placeholder="Ingresa PIN (Predeterminado: 1234)">
+        </div>
+        <button class="btn" onclick="authAdmin()">Ingresar</button>
+      </div>
+
+      <div id="admin-body" style="display: none;">
+        <h4>1. Configuración de Moneda y Pagos</h4>
+        <div class="field-group" style="margin-top: 8px;">
+          <label>Tasa BS / USDT:</label>
+          <input type="number" step="0.01" id="admin-tasa">
+        </div>
+        <div class="field-group">
+          <label>Datos Pago Móvil:</label>
+          <input type="text" id="admin-pm" placeholder="Banco, Cédula, Teléfono">
+        </div>
+        <div class="field-group">
+          <label>Binance Pay ID / Correo:</label>
+          <input type="text" id="admin-binance" placeholder="Binance ID o Email">
+        </div>
+
+        <button class="btn" style="background: var(--accent); margin-bottom: 16px;" onclick="saveSettings()">Actualizar Tasa y Pagos</button>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>2. Crear Nuevo Artículo</h4>
+        <div class="field-group">
+          <label>Título del Producto:</label>
+          <input type="text" id="new-title" placeholder="Ej: Roblox — Robux">
+        </div>
+        <div class="field-group">
+          <label>Descripción:</label>
+          <input type="text" id="new-desc" placeholder="Ej: Recargas directas por ID">
+        </div>
+        <div class="field-group">
+          <label>Enlace Directo Imagen Drive:</label>
+          <input type="text" id="new-img" placeholder="Pegar URL de Drive o vacío para imagen predeterminada">
+        </div>
+        <div class="field-group">
+          <label>Variantes (Opción:PrecioUSDT separado por coma):</label>
+          <input type="text" id="new-variants" placeholder="Ej: 80 Robux:1.50, 400 Robux:5.50">
+        </div>
+        <div class="field-group" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="new-offer" style="width: auto;">
+          <label for="new-offer" style="margin: 0;">¿Marcar como Oferta / Descuento?</label>
+        </div>
+
+        <button class="btn" style="background: var(--success); margin-bottom: 16px;" onclick="addArticle()">Guardar Artículo</button>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>3. Generar Nota de Entrega</h4>
+        <div class="field-group">
+          <label>Nombre del Cliente:</label>
+          <input type="text" id="receipt-client-name" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="field-group">
+          <label>Detalle del Producto Entregado:</label>
+          <input type="text" id="receipt-item-detail" placeholder="Ej: Licencia Roblox 400 Robux">
+        </div>
+        <button class="btn" style="background: var(--primary);" onclick="generateReceipt()">Generar Recibo</button>
+
+        <div id="receipt-output"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let storeData = JSON.parse(localStorage.getItem('jbstore_data')) || {
+      tasaBs: 45.00,
+      pagoMovil: "Banco de Venezuela | 0414-0000000 | V-12345678",
+      binanceId: "123456789 (JBstore)",
+      productos: [
+        {
+          id: "1",
+          titulo: "Roblox — Robux",
+          desc: "Recargas directas a tu cuenta",
+          img: "https://via.placeholder.com/300x150",
+          esOferta: true,
+          variantes: [
+            { nombre: "80 Robux", usdt: 1.50 },
+            { nombre: "400 Robux", usdt: 5.50 },
+            { nombre: "800 Robux", usdt: 10.00 }
+          ]
+        }
+      ]
+    };
+
+    let cart = null;
+
+    function saveToStorage() {
+      localStorage.setItem('jbstore_data', JSON.stringify(storeData));
+      renderStore();
+    }
+
+    function renderStore() {
+      document.getElementById('tasa-display').innerText = `Tasa del día: ${storeData.tasaBs.toFixed(2)} BS / USDT`;
+      document.getElementById('payment-methods-info').innerHTML = `
+        <b>Pago Móvil:</b> ${storeData.pagoMovil}<br>
+        <b>Binance Pay:</b> ${storeData.binanceId}
+      `;
+
+      const grid = document.getElementById('products-container');
+      grid.innerHTML = '';
+
+      storeData.productos.forEach((p, idx) => {
+        let badge = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
+        let options = p.variantes.map((v, vIdx) => {
+          let bs = (v.usdt * storeData.tasaBs).toFixed(2);
+          return `<option value="${v.usdt}" data-name="${v.nombre}">${v.nombre} — ${v.usdt.toFixed(2)} USDT (~${bs} BS)</option>`;
+        }).join('');
+
+        let initUsdt = p.variantes[0].usdt;
+        let initBs = (initUsdt * storeData.tasaBs).toFixed(2);
+
+        grid.innerHTML += `
+          <div class="card">
+            ${badge}
+            <div>
+              <img src="${p.img}" class="card-img" alt="${p.titulo}">
+              <div class="card-title">${p.titulo}</div>
+              <div class="card-desc">${p.desc}</div>
+              <div class="field-group">
+                <label>Selecciona Opción:</label>
+                <select id="sel-${idx}" onchange="updatePrice(${idx})">${options}</select>
+              </div>
+            </div>
+            <div>
+              <div class="price-box">
+                <div class="price-usdt" id="usdt-${idx}">${initUsdt.toFixed(2)} USDT</div>
+                <div class="price-bs" id="bs-${idx}">~ ${initBs} BS</div>
+              </div>
+              <button class="btn" onclick="addToCart(${idx})">Seleccionar Pedido</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function updatePrice(idx) {
+      let sel = document.getElementById(`sel-${idx}`);
+      let usdt = parseFloat(sel.value);
+      let bs = (usdt * storeData.tasaBs).toFixed(2);
+      document.getElementById(`usdt-${idx}`).innerText = `${usdt.toFixed(2)} USDT`;
+      document.getElementById(`bs-${idx}`).innerText = `~ ${bs} BS`;
+    }
+
+    function addToCart(idx) {
+      let p = storeData.productos[idx];
+      let sel = document.getElementById(`sel-${idx}`);
+      let opt = sel.options[sel.selectedIndex];
+      let usdt = parseFloat(sel.value);
+      let bs = (usdt * storeData.tasaBs).toFixed(2);
+
+      cart = { titulo: p.titulo, opcion: opt.getAttribute('data-name'), usdt, bs };
+      document.getElementById('cart-usdt').innerText = `${usdt.toFixed(2)} USDT`;
+      document.getElementById('cart-bs').innerText = `~ ${bs} BS`;
+    }
+
+    function openCheckout() {
+      if (!cart) return alert("Selecciona un producto primero.");
+      document.getElementById('checkout-summary').innerHTML = `
+        <b>Producto:</b> ${cart.titulo}<br>
+        <b>Opción:</b> ${cart.opcion}<br>
+        <b>Monto:</b> ${cart.usdt.toFixed(2)} USDT (${cart.bs} BS)
+      `;
+      openModal('checkout-modal');
+    }
+
+    function submitOrder() {
+      let email = document.getElementById('client-email').value;
+      let ref = document.getElementById('client-ref').value;
+
+      if (!email || !ref) return alert("Por favor ingresa tu correo y número de referencia.");
+
+      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n💰 *Monto:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS\n📧 *Correo:* ${email}\n🔢 *Referencia:* ${ref}`;
+      
+      let tg = window.Telegram?.WebApp;
+      if (tg && tg.sendData) {
+        tg.sendData(text);
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      }
+      closeModal('checkout-modal');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function authAdmin() {
+      if (document.getElementById('admin-pin').value === "1234") {
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-body').style.display = 'block';
+        document.getElementById('admin-tasa').value = storeData.tasaBs;
+        document.getElementById('admin-pm').value = storeData.pagoMovil;
+        document.getElementById('admin-binance').value = storeData.binanceId;
+      } else { alert("PIN Incorrecto"); }
+    }
+
+    function saveSettings() {
+      storeData.tasaBs = parseFloat(document.getElementById('admin-tasa').value) || storeData.tasaBs;
+      storeData.pagoMovil = document.getElementById('admin-pm').value;
+      storeData.binanceId = document.getElementById('admin-binance').value;
+      saveToStorage();
+      alert("Tasa y datos de pago actualizados.");
+    }
+
+    function addArticle() {
+      let title = document.getElementById('new-title').value;
+      let desc = document.getElementById('new-desc').value;
+      let img = document.getElementById('new-img').value || "https://via.placeholder.com/300x150";
+      let rawVar = document.getElementById('new-variants').value;
+      let isOffer = document.getElementById('new-offer').checked;
+
+      if (!title || !rawVar) return alert("Ingresa el título y las variantes.");
+
+      let vars = rawVar.split(',').map(v => {
+        let [n, p] = v.split(':');
+        return { nombre: n.trim(), usdt: parseFloat(p.trim()) };
+      });
+
+      storeData.productos.push({ id: Date.now().toString(), titulo: title, desc, img, esOferta: isOffer, variantes: vars });
+      saveToStorage();
+      alert("Artículo agregado exitosamente.");
+    }
+
+    function generateReceipt() {
+      let client = document.getElementById('receipt-client-name').value;
+      let item = document.getElementById('receipt-item-detail').value;
+
+      if (!client || !item) return alert("Ingresa el nombre del cliente y el detalle.");
+
+      document.getElementById('receipt-output').innerHTML = `
+        <div class="receipt-box">
+          <h3 style="text-align:center; margin-bottom:8px;">📄 NOTA DE ENTREGA — JBstore</h3>
+          <b>Cliente:</b> ${client}<br>
+          <b>Ítem Entregado:</b> ${item}<br>
+          <b>Fecha:</b> ${new Date().toLocaleDateString()}<br><br>
+          <i>Garantía & Descargo de Responsabilidad: JBstore certifica la entrega del ítem digital contratado. No nos hacemos responsables por mal uso, bloqueos externos o modificaciones realizadas tras la entrega del servicio.</i>
+        </div>
+      `;
+    }
+
+    renderStore();
+  </script>
+</body>
+</html>
