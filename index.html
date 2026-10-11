@@ -36,51 +36,88 @@
       position: fixed; top: 12px; right: 12px; z-index: 20;
       background: var(--primary); color: #fff; border: none;
       padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
     /* CARRUSEL DE BANNERS */
-    .banner-container { max-width: 600px; margin: 12px auto 0; padding: 0 16px; position: relative; }
+    .banner-container { max-width: 900px; margin: 16px auto 0; padding: 0 16px; position: relative; }
     .banner-scroll-wrapper { position: relative; border-radius: 12px; overflow: hidden; }
     .banner-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
     .banner-scroll::-webkit-scrollbar { display: none; }
-    .banner-card { min-width: 100%; flex: 0 0 100%; scroll-snap-align: center; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid var(--border); background: #000; height: 150px; }
+    .banner-card { min-width: 100%; flex: 0 0 100%; scroll-snap-align: center; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid var(--border); background: #000; height: 160px; }
     .banner-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.2s; }
     .banner-card:hover img { opacity: 1; }
-    .banner-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 10px; color: #fff; }
-    .banner-title { font-size: 13px; font-weight: 700; }
-    .banner-sub { font-size: 11px; color: #e5e7eb; }
+    .banner-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 12px; color: #fff; }
+    .banner-title { font-size: 14px; font-weight: 700; }
+    .banner-sub { font-size: 12px; color: #e5e7eb; }
 
     .banner-nav-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(0, 0, 0, 0.5); color: white; border: none;
-      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; z-index: 5; backdrop-filter: blur(2px);
     }
-    .banner-nav-prev { left: 8px; }
-    .banner-nav-next { right: 8px; }
+    .banner-nav-prev { left: 10px; }
+    .banner-nav-next { right: 10px; }
 
     /* FILTRO DE CATEGORÍAS */
     .categories-bar {
-      max-width: 600px; margin: 12px auto 0; padding: 0 16px;
-      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+      max-width: 900px; margin: 16px auto 0; padding: 0 16px;
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; justify-content: flex-start;
     }
     .categories-bar::-webkit-scrollbar { display: none; }
     .cat-btn {
-      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
       border: 1px solid var(--border); background: var(--card-bg); color: var(--text-muted);
       cursor: pointer; white-space: nowrap; transition: all 0.2s;
     }
     .cat-btn.active { background: var(--primary); color: #ffffff; border-color: var(--primary); }
 
-    .container { max-width: 600px; margin: 0 auto; padding: 16px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    /* BARRA DE BÚSQUEDA */
+    .search-container {
+      max-width: 900px; margin: 12px auto 0; padding: 0 16px;
+    }
+    .search-box {
+      position: relative; display: flex; align-items: center;
+    }
+    .search-box input {
+      width: 100%; padding: 10px 14px 10px 38px; font-size: 14px;
+      border: 1px solid var(--border); border-radius: 20px;
+      background: var(--card-bg); color: var(--text); outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-box input:focus { border-color: var(--accent); background: #ffffff; }
+    .search-icon {
+      position: absolute; left: 12px; font-size: 14px; color: var(--text-muted); pointer-events: none;
+    }
+
+    /* CONTENEDOR PRINCIPAL Y RESPONSIVE GRID (CELULAR / TABLET / PC) */
+    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .banner-card { height: 200px; }
+    }
+
+    @media (min-width: 850px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+      .banner-card { height: 220px; }
+      .categories-bar { justify-content: center; }
+    }
 
     .card {
       background: #ffffff; border: 1px solid var(--border);
       border-radius: 12px; padding: 16px; position: relative;
       display: flex; flex-direction: column; justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
     .badge-offer {
       position: absolute; top: 12px; right: 12px;
@@ -131,6 +168,15 @@
       position: fixed; bottom: 0; left: 0; right: 0;
       background: #ffffff; border-top: 1px solid var(--border);
       padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+      z-index: 80;
+    }
+
+    @media (min-width: 850px) {
+      .footer-bar {
+        max-width: 600px; left: 50%; transform: translateX(-50%);
+        border-radius: 16px 16px 0 0; border: 1px solid var(--border);
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+      }
     }
 
     .receipt-box { border: 1px dashed var(--border); padding: 16px; border-radius: 8px; background: #fdfdfd; font-size: 12px; line-height: 1.5; margin-top: 12px; }
@@ -172,6 +218,14 @@
     <button class="cat-btn" onclick="filterCategory('Licencias')">🔑 Licencias</button>
   </div>
 
+  <!-- BARRA DE BÚSQUEDA EN TIEMPO REAL -->
+  <div class="search-container">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar producto o servicio..." oninput="onSearchInput()">
+    </div>
+  </div>
+
   <div class="container">
     <div class="grid" id="products-container"></div>
   </div>
@@ -194,7 +248,7 @@
         <h3>📢 Novedades JBstore</h3>
         <button class="close-btn" onclick="closeModal('promo-modal')">&times;</button>
       </div>
-      <img id="promo-modal-img" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
+      <img id="promo-modal-img" src="" style="width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
       <h4 id="promo-modal-title" style="font-size: 16px; margin-bottom: 8px;"></h4>
       <p id="promo-modal-desc" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;"></p>
       <div style="display: flex; gap: 10px;">
@@ -419,6 +473,7 @@
 
     let cart = null;
     let currentCategory = "TODOS";
+    let searchQuery = "";
     let autoScrollTimer = null;
 
     function cleanExpiredBanners() {
@@ -440,6 +495,11 @@
       document.querySelectorAll('.cat-btn').forEach(b => {
         b.classList.toggle('active', b.innerText.includes(cat) || (cat === 'TODOS' && b.innerText === 'Todos'));
       });
+      renderStore();
+    }
+
+    function onSearchInput() {
+      searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
       renderStore();
     }
 
@@ -471,11 +531,22 @@
         stopAutoScroll();
       }
 
-      // Productos con filtro por Categoría
+      // Productos con filtro por Categoría y Búsqueda en Tiempo Real
       const grid = document.getElementById('products-container');
       grid.innerHTML = '';
 
-      let prodsFiltered = storeData.productos.filter(p => currentCategory === "TODOS" || (p.categoria && p.categoria === currentCategory));
+      let prodsFiltered = storeData.productos.filter(p => {
+        let matchCat = (currentCategory === "TODOS" || (p.categoria && p.categoria === currentCategory));
+        let matchSearch = searchQuery === "" || 
+                          p.titulo.toLowerCase().includes(searchQuery) || 
+                          p.desc.toLowerCase().includes(searchQuery);
+        return matchCat && matchSearch;
+      });
+
+      if (prodsFiltered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px;">🔍 No se encontraron productos para esta búsqueda.</div>`;
+        return;
+      }
 
       prodsFiltered.forEach((p, idx) => {
         let badgeOffer = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
