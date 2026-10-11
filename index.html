@@ -181,28 +181,24 @@
   <div class="modal" id="checkout-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>🛒 Confirmar y Pagar</h3>
+        <h3>🛒 Datos del Pedido</h3>
         <button class="close-btn" onclick="closeModal('checkout-modal')">&times;</button>
       </div>
 
       <div id="checkout-summary" style="margin-bottom: 16px; font-size: 14px;"></div>
 
       <div class="field-group">
-        <label>Correo Electrónico (Para recibir datos/cuenta):</label>
-        <input type="email" id="client-email" placeholder="ejemplo@gmail.com" required>
+        <label>Datos para procesar tu recarga / cuenta:</label>
+        <textarea id="client-account-data" rows="3" placeholder="Ej: ID de jugador, Nombre de Usuario o Correo y Clave (según aplique)"></textarea>
       </div>
 
       <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-        <h4 style="font-size: 13px; margin-bottom: 8px;">Métodos de Pago:</h4>
+        <h4 style="font-size: 13px; margin-bottom: 8px;">Métodos de Pago Aceptados:</h4>
         <p style="font-size: 12px;" id="payment-methods-info"></p>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">📌 <i>Al presionar el botón abajo, se abrirá tu WhatsApp para enviar el pedido y adjuntar la captura del pago.</i></p>
       </div>
 
-      <div class="field-group">
-        <label>Número de Referencia / Comprobante:</label>
-        <input type="text" id="client-ref" placeholder="Ej: 84920492">
-      </div>
-
-      <button class="btn" style="background: var(--success);" onclick="submitOrder()">Enviar Pedido por WhatsApp / Telegram</button>
+      <button class="btn" style="background: var(--success);" onclick="submitOrder()">📲 Enviar Pedido por WhatsApp</button>
     </div>
   </div>
 
@@ -487,12 +483,13 @@
     }
 
     function submitOrder() {
-      let email = document.getElementById('client-email').value;
-      let ref = document.getElementById('client-ref').value;
+      let accountData = document.getElementById('client-account-data').value.trim();
 
-      if (!email || !ref) return alert("Por favor ingresa tu correo y número de referencia.");
+      if (!accountData) {
+        return alert("Por favor ingresa los datos de tu cuenta o usuario para procesar el pedido.");
+      }
 
-      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n💰 *Monto:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS\n📧 *Correo:* ${email}\n🔢 *Referencia:* ${ref}`;
+      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n💰 *Monto a pagar:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS (Tasa: ${storeData.tasaBs} BS)\n\n👤 *Datos de la Cuenta:* \n${accountData}\n\n📷 *Adjunto la captura de pago a continuación.*`;
       
       let tg = window.Telegram?.WebApp;
       if (tg && tg.sendData) {
@@ -607,7 +604,7 @@
       }
     }
 
-    /* GESTIÓN DE BANNERS CON EDICIÓN Y TIEMPO DE VIDA */
+    /* GESTIÓN DE BANNERS */
     function populateAdminBannerDropdown() {
       let sel = document.getElementById('edit-banner-select');
       sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO BANNER --</option>';
