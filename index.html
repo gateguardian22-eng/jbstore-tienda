@@ -19,17 +19,25 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 110px; }
 
     header {
       background: #ffffff; border-bottom: 1px solid var(--border);
       padding: 16px; text-align: center; position: sticky; top: 0; z-index: 10;
     }
 
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;
+      margin-bottom: 6px; text-transform: uppercase;
+    }
+    .status-online { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .status-offline { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
     .tasa-badge {
       display: inline-block; background: #eff6ff; color: var(--accent);
       border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 20px;
-      font-size: 12px; font-weight: 700; margin-top: 6px;
+      font-size: 12px; font-weight: 700; margin-top: 4px;
     }
 
     .admin-btn-fixed {
@@ -37,6 +45,13 @@
       background: var(--primary); color: #fff; border: none;
       padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .share-btn-fixed {
+      position: fixed; top: 12px; left: 12px; z-index: 20;
+      background: var(--success); color: #fff; border: none;
+      padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;
     }
 
     /* CARRUSEL DE BANNERS */
@@ -75,30 +90,19 @@
     .cat-btn.active { background: var(--primary); color: #ffffff; border-color: var(--primary); }
 
     /* BARRA DE BÚSQUEDA */
-    .search-container {
-      max-width: 900px; margin: 12px auto 0; padding: 0 16px;
-    }
-    .search-box {
-      position: relative; display: flex; align-items: center;
-    }
+    .search-container { max-width: 900px; margin: 12px auto 0; padding: 0 16px; }
+    .search-box { position: relative; display: flex; align-items: center; }
     .search-box input {
       width: 100%; padding: 10px 14px 10px 38px; font-size: 14px;
       border: 1px solid var(--border); border-radius: 20px;
-      background: var(--card-bg); color: var(--text); outline: none;
-      transition: border-color 0.2s;
+      background: var(--card-bg); color: var(--text); outline: none; transition: border-color 0.2s;
     }
     .search-box input:focus { border-color: var(--accent); background: #ffffff; }
-    .search-icon {
-      position: absolute; left: 12px; font-size: 14px; color: var(--text-muted); pointer-events: none;
-    }
+    .search-icon { position: absolute; left: 12px; font-size: 14px; color: var(--text-muted); pointer-events: none; }
 
-    /* CONTENEDOR PRINCIPAL Y RESPONSIVE GRID (CELULAR / TABLET / PC) */
+    /* GRID RESPONSIVE */
     .container { max-width: 900px; margin: 0 auto; padding: 16px; }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
 
     @media (min-width: 600px) {
       .grid { grid-template-columns: repeat(2, 1fr); }
@@ -119,17 +123,8 @@
     }
     .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-    .badge-offer {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--danger); color: #fff; font-size: 10px;
-      font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
-    }
-
-    .badge-out {
-      position: absolute; top: 12px; left: 12px;
-      background: #6b7280; color: #fff; font-size: 10px;
-      font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
-    }
+    .badge-offer { position: absolute; top: 12px; right: 12px; background: var(--danger); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+    .badge-out { position: absolute; top: 12px; left: 12px; background: #6b7280; color: #fff; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
 
     .card-img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; background: #f3f4f6; }
     .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
@@ -144,20 +139,26 @@
       background: var(--card-bg); color: var(--text); outline: none;
     }
 
+    .qty-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .qty-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card-bg); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .qty-val { font-size: 14px; font-weight: 700; width: 24px; text-align: center; }
+
     .price-box { margin-bottom: 12px; }
     .price-usdt { font-size: 18px; font-weight: 800; color: var(--primary); }
     .price-bs { font-size: 13px; font-weight: 600; color: var(--success); }
 
-    .btn {
-      width: 100%; padding: 12px; background: var(--primary);
-      color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
-    }
+    .btn { width: 100%; padding: 12px; background: var(--primary); color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-copy { background: #e0e7ff; color: var(--accent); border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; margin-left: 6px; }
 
-    .btn-copy {
-      background: #e0e7ff; color: var(--accent); border: 1px solid #bfdbfe;
-      padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
-      cursor: pointer; margin-left: 6px;
-    }
+    /* PREGUNTAS FRECUENTES (FAQ) */
+    .faq-section { max-width: 900px; margin: 32px auto 16px; padding: 0 16px; }
+    .faq-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; text-align: center; }
+    .faq-item { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .faq-header { padding: 12px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); }
+    .faq-body { padding: 12px 16px; font-size: 12px; color: var(--text-muted); line-height: 1.5; display: none; border-top: 1px solid var(--border); }
 
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; padding: 20px; overflow-y: auto; }
     .modal-content { background: #ffffff; max-width: 500px; margin: 10px auto; border-radius: 12px; padding: 20px; position: relative; }
@@ -167,8 +168,7 @@
     .footer-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: #ffffff; border-top: 1px solid var(--border);
-      padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
-      z-index: 80;
+      padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 80;
     }
 
     @media (min-width: 850px) {
@@ -182,7 +182,7 @@
     .receipt-box { border: 1px dashed var(--border); padding: 16px; border-radius: 8px; background: #fdfdfd; font-size: 12px; line-height: 1.5; margin-top: 12px; }
 
     .toast-msg {
-      display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      display: none; position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
       background: #111827; color: #ffffff; padding: 10px 18px; border-radius: 20px;
       font-size: 12px; font-weight: 600; z-index: 90; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center; white-space: nowrap;
@@ -193,9 +193,11 @@
 </head>
 <body>
 
+  <button class="share-btn-fixed" onclick="shareStore()">📲 Compartir</button>
   <button class="admin-btn-fixed" onclick="openModal('admin-modal')">⚙️ Admin</button>
 
   <header>
+    <div id="status-display" class="status-badge status-online">🟢 Atendiendo / En Línea</div>
     <h1>JBstore</h1>
     <p>Catálogo Digital & Tienda Multi-Moneda Pro</p>
     <div class="tasa-badge" id="tasa-display">Tasa del día: -- BS / USDT</div>
@@ -228,6 +230,23 @@
 
   <div class="container">
     <div class="grid" id="products-container"></div>
+  </div>
+
+  <!-- PREGUNTAS FRECUENTES (FAQ) -->
+  <div class="faq-section">
+    <div class="faq-title">❓ Preguntas Frecuentes</div>
+    <div class="faq-item">
+      <div class="faq-header" onclick="toggleFaq(this)">⏱️ ¿Cuánto tiempo tarda en hacerse efectiva mi recarga? <span>▼</span></div>
+      <div class="faq-body">El tiempo promedio de entrega es de 5 a 15 minutos una vez verificado el pago por WhatsApp en nuestro horario de atención.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-header" onclick="toggleFaq(this)">💳 ¿Cuáles son los métodos de pago aceptados? <span>▼</span></div>
+      <div class="faq-body">Aceptamos Pago Móvil en Bolívares (a la tasa del día) y Binance Pay en USDT. Próximamente Zinli y PayPal.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-header" onclick="toggleFaq(this)">🔒 ¿Mis datos y cuenta están seguros? <span>▼</span></div>
+      <div class="faq-body">Totalmente. JBstore garantiza máxima confidencialidad. Para servicios directos por ID no requerimos claves. Para recargas en cuenta, tus datos se procesan con estricta seguridad.</div>
+    </div>
   </div>
 
   <div class="toast-msg" id="toast"></div>
@@ -307,8 +326,17 @@
       </div>
 
       <div id="admin-body" style="display: none;">
-        <h4>1. Configuración de Moneda y Pagos</h4>
+        <h4>1. Configuración de Moneda, Estado y Pagos</h4>
+        
         <div class="field-group" style="margin-top: 8px;">
+          <label>Estado de Atención en Tienda:</label>
+          <select id="admin-status">
+            <option value="ONLINE">🟢 Atendiendo / En Línea</option>
+            <option value="OFFLINE">🔴 Cerrado Temporalmente</option>
+          </select>
+        </div>
+
+        <div class="field-group">
           <label>Tasa BS / USDT:</label>
           <input type="number" step="0.01" id="admin-tasa">
         </div>
@@ -321,7 +349,7 @@
           <input type="text" id="admin-binance" placeholder="Binance ID o Email">
         </div>
 
-        <button class="btn" style="background: var(--accent); margin-bottom: 16px;" onclick="saveSettings()">Actualizar Tasa y Pagos</button>
+        <button class="btn" style="background: var(--accent); margin-bottom: 16px;" onclick="saveSettings()">Actualizar Configuración</button>
 
         <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
 
@@ -443,6 +471,7 @@
       tasaBs: 45.00,
       pagoMovil: "Banco de Venezuela | 0414-0000000 | V-12345678",
       binanceId: "123456789 (JBstore)",
+      estadoAtencion: "ONLINE",
       ventas: [],
       banners: [
         {
@@ -474,6 +503,7 @@
     let cart = null;
     let currentCategory = "TODOS";
     let searchQuery = "";
+    let productQuantities = {};
     let autoScrollTimer = null;
 
     function cleanExpiredBanners() {
@@ -509,6 +539,16 @@
       document.getElementById('pm-info-text').innerText = storeData.pagoMovil;
       document.getElementById('binance-info-text').innerText = storeData.binanceId;
 
+      // Estado Atencion
+      const statusBox = document.getElementById('status-display');
+      if (storeData.estadoAtencion === "ONLINE") {
+        statusBox.className = "status-badge status-online";
+        statusBox.innerText = "🟢 Atendiendo / En Línea";
+      } else {
+        statusBox.className = "status-badge status-offline";
+        statusBox.innerText = "🔴 Cerrado Temporalmente";
+      }
+
       // Banners
       const bannersList = document.getElementById('banners-list');
       bannersList.innerHTML = '';
@@ -531,7 +571,7 @@
         stopAutoScroll();
       }
 
-      // Productos con filtro por Categoría y Búsqueda en Tiempo Real
+      // Productos
       const grid = document.getElementById('products-container');
       grid.innerHTML = '';
 
@@ -549,16 +589,22 @@
       }
 
       prodsFiltered.forEach((p, idx) => {
+        if (!productQuantities[p.id]) productQuantities[p.id] = 1;
+        let qty = productQuantities[p.id];
+
         let badgeOffer = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
         let badgeOut = p.esAgotado ? `<div class="badge-out">Agotado</div>` : '';
         
         let options = p.variantes.map((v) => {
-          let bs = (v.usdt * storeData.tasaBs).toFixed(2);
-          return `<option value="${v.usdt}" data-name="${v.nombre}">${v.nombre} — ${v.usdt.toFixed(2)} USDT (~${bs} BS)</option>`;
+          let unitUsdt = v.usdt;
+          let totalUsdt = unitUsdt * qty;
+          let bs = (totalUsdt * storeData.tasaBs).toFixed(2);
+          return `<option value="${unitUsdt}" data-name="${v.nombre}">${v.nombre} — ${unitUsdt.toFixed(2)} USDT</option>`;
         }).join('');
 
-        let initUsdt = p.variantes[0].usdt;
-        let initBs = (initUsdt * storeData.tasaBs).toFixed(2);
+        let unitUsdt = p.variantes[0].usdt;
+        let totalUsdt = unitUsdt * qty;
+        let totalBs = (totalUsdt * storeData.tasaBs).toFixed(2);
 
         grid.innerHTML += `
           <div class="card" style="${p.esAgotado ? 'opacity: 0.75;' : ''}">
@@ -572,13 +618,22 @@
                 <label>Selecciona Opción:</label>
                 <select id="sel-${idx}" onchange="updatePrice(${idx})" ${p.esAgotado ? 'disabled' : ''}>${options}</select>
               </div>
+
+              <div class="field-group">
+                <label>Cantidad:</label>
+                <div class="qty-box">
+                  <button class="qty-btn" onclick="changeQty('${p.id}', -1, ${idx})" ${p.esAgotado ? 'disabled' : ''}>-</button>
+                  <span class="qty-val" id="qty-val-${p.id}">${qty}</span>
+                  <button class="qty-btn" onclick="changeQty('${p.id}', 1, ${idx})" ${p.esAgotado ? 'disabled' : ''}>+</button>
+                </div>
+              </div>
             </div>
             <div>
               <div class="price-box">
-                <div class="price-usdt" id="usdt-${idx}">${initUsdt.toFixed(2)} USDT</div>
-                <div class="price-bs" id="bs-${idx}">~ ${initBs} BS</div>
+                <div class="price-usdt" id="usdt-${idx}">${totalUsdt.toFixed(2)} USDT</div>
+                <div class="price-bs" id="bs-${idx}">~ ${totalBs} BS</div>
               </div>
-              <button class="btn" style="${p.esAgotado ? 'background: #9ca3af; cursor: not-allowed;' : ''}" onclick="addToCart(${idx})" ${p.esAgotado ? 'disabled' : ''}>
+              <button class="btn" style="${p.esAgotado ? 'background: #9ca3af; cursor: not-allowed;' : ''}" onclick="addToCart(${idx}, '${p.id}')" ${p.esAgotado ? 'disabled' : ''}>
                 ${p.esAgotado ? 'Agotado Temporalmente' : 'Seleccionar Pedido'}
               </button>
             </div>
@@ -587,28 +642,102 @@
       });
     }
 
-    function copyText(elemId) {
-      const txt = document.getElementById(elemId).innerText;
-      navigator.clipboard.writeText(txt);
-      showToast("📋 Copiado al portapapeles");
+    function changeQty(prodId, delta, idx) {
+      if (!productQuantities[prodId]) productQuantities[prodId] = 1;
+      productQuantities[prodId] = Math.max(1, productQuantities[prodId] + delta);
+      document.getElementById(`qty-val-${prodId}`).innerText = productQuantities[prodId];
+      updatePrice(idx, prodId);
+    }
+
+    function updatePrice(idx, prodId) {
+      let sel = document.getElementById(`sel-${idx}`);
+      if (!sel) return;
+      let pId = prodId || storeData.productos[idx]?.id;
+      let qty = productQuantities[pId] || 1;
+      let unitUsdt = parseFloat(sel.value);
+      let totalUsdt = unitUsdt * qty;
+      let totalBs = (totalUsdt * storeData.tasaBs).toFixed(2);
+
+      document.getElementById(`usdt-${idx}`).innerText = `${totalUsdt.toFixed(2)} USDT`;
+      document.getElementById(`bs-${idx}`).innerText = `~ ${totalBs} BS`;
+    }
+
+    function addToCart(idx, prodId) {
+      let p = storeData.productos[idx];
+      let sel = document.getElementById(`sel-${idx}`);
+      let opt = sel.options[sel.selectedIndex];
+      let unitUsdt = parseFloat(sel.value);
+      let qty = productQuantities[prodId] || 1;
+      let totalUsdt = unitUsdt * qty;
+      let totalBs = (totalUsdt * storeData.tasaBs).toFixed(2);
+
+      cart = { titulo: p.titulo, opcion: opt.getAttribute('data-name'), cantidad: qty, usdt: totalUsdt, bs: totalBs };
+      document.getElementById('cart-usdt').innerText = `${totalUsdt.toFixed(2)} USDT`;
+      document.getElementById('cart-bs').innerText = `~ ${totalBs} BS`;
+
+      showToast(`✅ ${qty}x ${p.titulo} seleccionado. Finaliza en 'Pagar Pedido'.`);
+    }
+
+    function openCheckout() {
+      if (!cart) return alert("Selecciona un producto primero.");
+      document.getElementById('checkout-summary').innerHTML = `
+        <b>Producto:</b> ${cart.titulo}<br>
+        <b>Opción:</b> ${cart.opcion}<br>
+        <b>Cantidad:</b> x${cart.cantidad}<br>
+        <b>Monto Total:</b> ${cart.usdt.toFixed(2)} USDT (${cart.bs} BS)
+      `;
+      openModal('checkout-modal');
+    }
+
+    function submitOrder() {
+      let accountData = document.getElementById('client-account-data').value.trim();
+      if (!accountData) return alert("Por favor ingresa los datos de tu cuenta o usuario para procesar el pedido.");
+
+      if (!storeData.ventas) storeData.ventas = [];
+      storeData.ventas.unshift({
+        fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        producto: `${cart.cantidad}x ${cart.titulo} (${cart.opcion})`,
+        montoUsdt: cart.usdt,
+        montoBs: cart.bs
+      });
+      saveToStorage();
+
+      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n🔢 *Cantidad:* x${cart.cantidad}\n💰 *Monto total:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS (Tasa: ${storeData.tasaBs} BS)\n\n👤 *Datos de la Cuenta:* \n${accountData}\n\n📷 *Adjunto la captura de pago a continuación.*`;
+      
+      let tg = window.Telegram?.WebApp;
+      if (tg && tg.sendData) { tg.sendData(text); } else { window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`, '_blank'); }
+      closeModal('checkout-modal');
+    }
+
+    function shareStore() {
+      if (navigator.share) {
+        navigator.share({ title: 'JBstore — Catálogo Digital', text: '¡Echa un vistazo a los mejores precios de recargas y cuentas en JBstore!', url: window.location.href });
+      } else {
+        copyTextVal(window.location.href);
+        showToast("📋 Enlace de la tienda copiado");
+      }
+    }
+
+    function copyTextVal(val) { navigator.clipboard.writeText(val); }
+    function copyText(elemId) { copyTextVal(document.getElementById(elemId).innerText); showToast("📋 Copiado al portapapeles"); }
+
+    function toggleFaq(elem) {
+      let body = elem.nextElementSibling;
+      let isVisible = body.style.display === 'block';
+      body.style.display = isVisible ? 'none' : 'block';
+      elem.querySelector('span').innerText = isVisible ? '▼' : '▲';
     }
 
     function nextBanner() {
       const container = document.getElementById('banners-list');
-      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
-      }
+      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) { container.scrollTo({ left: 0, behavior: 'smooth' }); } 
+      else { container.scrollBy({ left: container.clientWidth, behavior: 'smooth' }); }
     }
 
     function prevBanner() {
       const container = document.getElementById('banners-list');
-      if (container.scrollLeft <= 0) {
-        container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' });
-      }
+      if (container.scrollLeft <= 0) { container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' }); } 
+      else { container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' }); }
     }
 
     function startAutoScroll() { stopAutoScroll(); if (storeData.banners && storeData.banners.length > 1) autoScrollTimer = setInterval(nextBanner, 4000); }
@@ -616,8 +745,7 @@
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.style.display = 'block';
+      toast.innerText = msg; toast.style.display = 'block';
       setTimeout(() => { toast.style.display = 'none'; }, 2500);
     }
 
@@ -631,59 +759,6 @@
       openModal('promo-modal');
     }
 
-    function updatePrice(idx) {
-      let sel = document.getElementById(`sel-${idx}`);
-      let usdt = parseFloat(sel.value);
-      let bs = (usdt * storeData.tasaBs).toFixed(2);
-      document.getElementById(`usdt-${idx}`).innerText = `${usdt.toFixed(2)} USDT`;
-      document.getElementById(`bs-${idx}`).innerText = `~ ${bs} BS`;
-    }
-
-    function addToCart(idx) {
-      let p = storeData.productos[idx];
-      let sel = document.getElementById(`sel-${idx}`);
-      let opt = sel.options[sel.selectedIndex];
-      let usdt = parseFloat(sel.value);
-      let bs = (usdt * storeData.tasaBs).toFixed(2);
-
-      cart = { titulo: p.titulo, opcion: opt.getAttribute('data-name'), usdt, bs };
-      document.getElementById('cart-usdt').innerText = `${usdt.toFixed(2)} USDT`;
-      document.getElementById('cart-bs').innerText = `~ ${bs} BS`;
-
-      showToast("✅ Artículo seleccionado. Finaliza en 'Pagar Pedido'.");
-    }
-
-    function openCheckout() {
-      if (!cart) return alert("Selecciona un producto primero.");
-      document.getElementById('checkout-summary').innerHTML = `
-        <b>Producto:</b> ${cart.titulo}<br>
-        <b>Opción:</b> ${cart.opcion}<br>
-        <b>Monto:</b> ${cart.usdt.toFixed(2)} USDT (${cart.bs} BS)
-      `;
-      openModal('checkout-modal');
-    }
-
-    function submitOrder() {
-      let accountData = document.getElementById('client-account-data').value.trim();
-      if (!accountData) return alert("Por favor ingresa los datos de tu cuenta o usuario para procesar el pedido.");
-
-      // Registrar venta en el historial
-      if (!storeData.ventas) storeData.ventas = [];
-      storeData.ventas.unshift({
-        fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-        producto: `${cart.titulo} (${cart.opcion})`,
-        montoUsdt: cart.usdt,
-        montoBs: cart.bs
-      });
-      saveToStorage();
-
-      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n💰 *Monto a pagar:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS (Tasa: ${storeData.tasaBs} BS)\n\n👤 *Datos de la Cuenta:* \n${accountData}\n\n📷 *Adjunto la captura de pago a continuación.*`;
-      
-      let tg = window.Telegram?.WebApp;
-      if (tg && tg.sendData) { tg.sendData(text); } else { window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`, '_blank'); }
-      closeModal('checkout-modal');
-    }
-
     function openModal(id) { document.getElementById(id).style.display = 'block'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
@@ -691,6 +766,7 @@
       if (document.getElementById('admin-pin').value === "24.07.12") {
         document.getElementById('admin-auth').style.display = 'none';
         document.getElementById('admin-body').style.display = 'block';
+        document.getElementById('admin-status').value = storeData.estadoAtencion || "ONLINE";
         document.getElementById('admin-tasa').value = storeData.tasaBs;
         document.getElementById('admin-pm').value = storeData.pagoMovil;
         document.getElementById('admin-binance').value = storeData.binanceId;
@@ -701,11 +777,12 @@
     }
 
     function saveSettings() {
+      storeData.estadoAtencion = document.getElementById('admin-status').value;
       storeData.tasaBs = parseFloat(document.getElementById('admin-tasa').value) || storeData.tasaBs;
       storeData.pagoMovil = document.getElementById('admin-pm').value;
       storeData.binanceId = document.getElementById('admin-binance').value;
       saveToStorage();
-      alert("Tasa y datos de pago actualizados.");
+      alert("Configuración actualizada.");
     }
 
     /* HISTORIAL DE VENTAS */
