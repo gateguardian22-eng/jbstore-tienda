@@ -149,3 +149,896 @@
     .price-box { margin-bottom: 12px; }
     .price-usdt { font-size: 18px; font-weight: 800; color: var(--primary); }
     .price-bs { font-size: 13px; font-weight: 600; color: var(--success); }
+
+    .btn { width: 100%; padding: 12px; background: var(--primary); color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-copy { background: #e0e7ff; color: var(--accent); border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; margin-left: 6px; }
+
+    /* PREGUNTAS FRECUENTES (FAQ) */
+    .faq-section { max-width: 900px; margin: 32px auto 16px; padding: 0 16px; }
+    .faq-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; text-align: center; }
+    .faq-item { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .faq-header { padding: 12px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); }
+    .faq-body { padding: 12px 16px; font-size: 12px; color: var(--text-muted); line-height: 1.5; display: none; border-top: 1px solid var(--border); }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; padding: 20px; overflow-y: auto; }
+    .modal-content { background: #ffffff; max-width: 500px; margin: 10px auto; border-radius: 12px; padding: 20px; position: relative; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
+
+    .footer-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #ffffff; border-top: 1px solid var(--border);
+      padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 80;
+    }
+
+    @media (min-width: 850px) {
+      .footer-bar {
+        max-width: 600px; left: 50%; transform: translateX(-50%);
+        border-radius: 16px 16px 0 0; border: 1px solid var(--border);
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+      }
+    }
+
+    .receipt-box { border: 1px dashed var(--border); padding: 16px; border-radius: 8px; background: #fdfdfd; font-size: 12px; line-height: 1.5; margin-top: 12px; }
+
+    .toast-msg {
+      display: none; position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+      background: #111827; color: #ffffff; padding: 10px 18px; border-radius: 20px;
+      font-size: 12px; font-weight: 600; z-index: 90; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center; white-space: nowrap;
+    }
+
+    .history-item { border-bottom: 1px solid var(--border); padding: 8px 0; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <button class="share-btn-fixed" onclick="shareStore()">📲 Compartir</button>
+  <button class="admin-btn-fixed" onclick="openModal('admin-modal')">⚙️ Admin</button>
+
+  <header>
+    <div id="status-display" class="status-badge status-online">🟢 Atendiendo / En Línea</div>
+    <h1>JBstore</h1>
+    <p>Catálogo Digital & Tienda Multi-Moneda Pro</p>
+    <div class="tasa-badge" id="tasa-display">Tasa del día: -- BS / USDT</div>
+  </header>
+
+  <!-- CARRUSEL PUBLICITARIO DE BANNERS -->
+  <div class="banner-container">
+    <div class="banner-scroll-wrapper">
+      <button class="banner-nav-btn banner-nav-prev" onclick="prevBanner()">❮</button>
+      <div class="banner-scroll" id="banners-list"></div>
+      <button class="banner-nav-btn banner-nav-next" onclick="nextBanner()">❯</button>
+    </div>
+  </div>
+
+  <!-- FILTROS POR CATEGORÍA -->
+  <div class="categories-bar" id="categories-container">
+    <button class="cat-btn active" onclick="filterCategory('TODOS')">Todos</button>
+    <button class="cat-btn" onclick="filterCategory('Juegos')">🎮 Juegos</button>
+    <button class="cat-btn" onclick="filterCategory('Streaming')">📺 Streaming</button>
+    <button class="cat-btn" onclick="filterCategory('Licencias')">🔑 Licencias</button>
+  </div>
+
+  <!-- BARRA DE BÚSQUEDA EN TIEMPO REAL -->
+  <div class="search-container">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar producto o servicio..." oninput="onSearchInput()">
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="grid" id="products-container"></div>
+  </div>
+
+  <!-- PREGUNTAS FRECUENTES (FAQ) -->
+  <div class="faq-section">
+    <div class="faq-title">❓ Preguntas Frecuentes</div>
+    <div class="faq-item">
+      <div class="faq-header" onclick="toggleFaq(this)">⏱️ ¿Cuánto tiempo tarda en hacerse efectiva mi recarga? <span>▼</span></div>
+      <div class="faq-body">El tiempo promedio de entrega es de 5 a 15 minutos una vez verificado el pago por WhatsApp en nuestro horario de atención.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-header" onclick="toggleFaq(this)">💳 ¿Cuáles son los métodos de pago aceptados? <span>▼</span></div>
+      <div class="faq-body">Aceptamos Pago Móvil en Bolívares (a la tasa del día) y Binance Pay en USDT. Próximamente Zinli y PayPal.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-header" onclick="toggleFaq(this)">🔒 ¿Mis datos y cuenta están seguros? <span>▼</span></div>
+      <div class="faq-body">Totalmente. JBstore garantiza máxima confidencialidad. Para servicios directos por ID no requerimos claves. Para recargas en cuenta, tus datos se procesan con estricta seguridad.</div>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="toast"></div>
+
+  <div class="footer-bar">
+    <div>
+      <div style="font-size: 11px; color: var(--text-muted);">Total Seleccionado:</div>
+      <div id="cart-usdt" style="font-size: 16px; font-weight: 800;">0.00 USDT</div>
+      <div id="cart-bs" style="font-size: 12px; color: var(--success); font-weight: 600;">~ 0.00 BS</div>
+    </div>
+    <button class="btn" style="width: auto; background: var(--accent);" onclick="openCheckout()">Pagar Pedido</button>
+  </div>
+
+  <!-- MODAL PROMO -->
+  <div class="modal" id="promo-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📢 Novedades JBstore</h3>
+        <button class="close-btn" onclick="closeModal('promo-modal')">&times;</button>
+      </div>
+      <img id="promo-modal-img" src="" style="width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
+      <h4 id="promo-modal-title" style="font-size: 16px; margin-bottom: 8px;"></h4>
+      <p id="promo-modal-desc" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;"></p>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn" style="background: var(--success);" id="btn-go-offer">📲 Ir a la Oferta</button>
+        <button class="btn" style="background: #e5e7eb; color: var(--text);" onclick="closeModal('promo-modal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CHECKOUT CLIENTE -->
+  <div class="modal" id="checkout-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🛒 Datos del Pedido</h3>
+        <button class="close-btn" onclick="closeModal('checkout-modal')">&times;</button>
+      </div>
+
+      <div id="checkout-summary" style="margin-bottom: 16px; font-size: 14px;"></div>
+
+      <div class="field-group">
+        <label>Datos para procesar tu recarga / cuenta:</label>
+        <textarea id="client-account-data" rows="3" placeholder="Ej: ID de jugador, Nombre de Usuario o Correo y Clave (según aplique)"></textarea>
+      </div>
+
+      <div style="background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+        <h4 style="font-size: 13px; margin-bottom: 8px;">Métodos de Pago Aceptados:</h4>
+        <div style="font-size: 12px; margin-bottom: 6px;">
+          <b>Pago Móvil:</b> <span id="pm-info-text"></span>
+          <button class="btn-copy" onclick="copyText('pm-info-text')">Copiar</button>
+        </div>
+        <div style="font-size: 12px;">
+          <b>Binance Pay:</b> <span id="binance-info-text"></span>
+          <button class="btn-copy" onclick="copyText('binance-info-text')">Copiar</button>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">📌 <i>Al presionar el botón abajo, se abrirá tu WhatsApp para enviar el pedido y adjuntar la captura del pago.</i></p>
+      </div>
+
+      <button class="btn" style="background: var(--success);" onclick="submitOrder()">📲 Enviar Pedido por WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- MODAL ADMIN PRO -->
+  <div class="modal" id="admin-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ Panel Administrador Pro</h3>
+        <button class="close-btn" onclick="closeModal('admin-modal')">&times;</button>
+      </div>
+
+      <div id="admin-auth">
+        <div class="field-group">
+          <label>PIN de Acceso:</label>
+          <input type="password" id="admin-pin" placeholder="Ingresa PIN (Clave: 24.07.12)">
+        </div>
+        <button class="btn" onclick="authAdmin()">Ingresar</button>
+      </div>
+
+      <div id="admin-body" style="display: none;">
+        <h4>1. Configuración de Moneda, Estado y Pagos</h4>
+        
+        <div class="field-group" style="margin-top: 8px;">
+          <label>Estado de Atención en Tienda:</label>
+          <select id="admin-status">
+            <option value="ONLINE">🟢 Atendiendo / En Línea</option>
+            <option value="OFFLINE">🔴 Cerrado Temporalmente</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Tasa BS / USDT:</label>
+          <input type="number" step="0.01" id="admin-tasa">
+        </div>
+        <div class="field-group">
+          <label>Datos Pago Móvil:</label>
+          <input type="text" id="admin-pm" placeholder="Banco, Cédula, Teléfono">
+        </div>
+        <div class="field-group">
+          <label>Binance Pay ID / Correo:</label>
+          <input type="text" id="admin-binance" placeholder="Binance ID o Email">
+        </div>
+
+        <button class="btn" style="background: var(--accent); margin-bottom: 16px;" onclick="saveSettings()">Actualizar Configuración</button>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>2. Gestión de Artículos (Crear / Editar / Stock)</h4>
+        
+        <div class="field-group">
+          <label>Seleccionar Artículo para Editar (o dejar en Nuevo):</label>
+          <select id="edit-prod-select" onchange="loadProductToEdit()">
+            <option value="NEW">➕ -- CREAR NUEVO ARTÍCULO --</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Categoría del Producto:</label>
+          <select id="prod-category">
+            <option value="Juegos">🎮 Juegos</option>
+            <option value="Streaming">📺 Streaming</option>
+            <option value="Licencias">🔑 Licencias</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Título del Producto:</label>
+          <input type="text" id="prod-title" placeholder="Ej: Roblox — Robux">
+        </div>
+        <div class="field-group">
+          <label>Descripción:</label>
+          <input type="text" id="prod-desc" placeholder="Ej: Recargas directas por ID">
+        </div>
+        <div class="field-group">
+          <label>URL de Imagen (Drive pre-configurado):</label>
+          <input type="text" id="prod-img" value="https://drive.google.com/uc?export=view&id=">
+        </div>
+        <div class="field-group">
+          <label>Variantes (Opción:PrecioUSDT separado por coma):</label>
+          <input type="text" id="prod-variants" placeholder="Ej: 80 Robux:1.50, 400 Robux:5.50">
+        </div>
+
+        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px;">
+            <input type="checkbox" id="prod-offer" style="width: auto;"> ¿Es Oferta?
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--danger);">
+            <input type="checkbox" id="prod-out" style="width: auto;"> ¿Marcar Agotado?
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <button class="btn" style="background: var(--success);" id="btn-save-prod" onclick="saveProduct()">Guardar Artículo</button>
+          <button class="btn" style="background: var(--danger); display: none;" id="btn-delete-prod" onclick="deleteProduct()">Eliminar</button>
+        </div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>3. Banners Promocionales (Máximo 3)</h4>
+        <div class="field-group">
+          <select id="edit-banner-select" onchange="loadBannerToEdit()">
+            <option value="NEW">➕ -- CREAR NUEVO BANNER --</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Título de la Promo:</label>
+          <input type="text" id="banner-title" placeholder="Ej: ¡Oferta Fin de Semana!">
+        </div>
+        <div class="field-group">
+          <label>Detalle Extenso de la Promo:</label>
+          <input type="text" id="banner-desc" placeholder="Ej: Recibe bonificación especial...">
+        </div>
+        <div class="field-group">
+          <label>Imagen Banner (URL o ID de Drive):</label>
+          <input type="text" id="banner-img" value="https://drive.google.com/uc?export=view&id=">
+        </div>
+        <div class="field-group">
+          <label>Duración (en Horas / 0 = Indefinido):</label>
+          <input type="number" id="banner-hours" placeholder="24" value="24">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <button class="btn" style="background: var(--accent);" id="btn-save-banner" onclick="saveBanner()">Guardar Banner</button>
+          <button class="btn" style="background: var(--danger); display: none;" id="btn-delete-banner" onclick="deleteBanner()">Eliminar Banner</button>
+        </div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>4. Historial de Ventas & Notas de Entrega</h4>
+        <div id="sales-history-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 12px; background: var(--card-bg); padding: 8px; border-radius: 8px;">
+          <p style="font-size: 11px; color: var(--text-muted);">Sin ventas registradas aún.</p>
+        </div>
+
+        <div class="field-group">
+          <label>Nombre del Cliente para Recibo:</label>
+          <input type="text" id="receipt-client-name" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="field-group">
+          <label>Detalle del Producto Entregado:</label>
+          <input type="text" id="receipt-item-detail" placeholder="Ej: 400 Robux">
+        </div>
+        <button class="btn" style="background: var(--primary); margin-bottom: 16px;" onclick="generateReceipt()">Generar Nota de Entrega</button>
+        <div id="receipt-output"></div>
+
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4>5. Respaldos (Exportar / Importar Tienda)</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Guarda una copia de todos tus productos y tasa para restaurarlos cuando quieras.</p>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn" style="background: #3b82f6;" onclick="exportData()">📥 Exportar Respaldo</button>
+          <button class="btn" style="background: #8b5cf6;" onclick="triggerImport()">📤 Importar Respaldo</button>
+          <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DRIVE_PREFIX = "https://drive.google.com/uc?export=view&id=";
+    const PHONE_NUMBER = "58412546526";
+
+    // DATOS UNIFICADOS DESDE TU ARCHIVO DE RESPALDO JSON
+    const defaultData = {
+      "tasaBs": 1047,
+      "pagoMovil": "Banco Mercantil | 0414-3633915 | V-17545455",
+      "binanceId": "246763246 (JBstore)",
+      "estadoAtencion": "OFFLINE",
+      "ventas": [],
+      "banners": [
+        {
+          "id": "b1",
+          "titulo": "🔥 Oferta en Robux — 500 x 4.99 USDT",
+          "desc": "¡Aprovecha precio de tienda oficial! Te ahorras la comisión. Recarga rápida y segura a tu cuenta con JBstore.",
+          "img": "https://dummyimage.com/600x300/111827/ffffff.png&text=500+Robux+x+4.99+USDT+--+Precio+Oficial",
+          "expireAt": null
+        }
+      ],
+      "productos": [
+        {
+          "id": "1",
+          "categoria": "Juegos",
+          "titulo": "Roblox — Robux ",
+          "desc": "Recarga Vía acceso",
+          "img": "https://lh3.googleusercontent.com/d/1QZieXFAfc8Hcyjht7Qxb-FtdOhoDJaon",
+          "esOferta": true,
+          "esAgotado": false,
+          "variantes": [
+            { "nombre": "80 Robux", "usdt": 1.27 },
+            { "nombre": "500 Robux", "usdt": 5.9 },
+            { "nombre": "1000 Robux", "usdt": 11.8 }
+          ]
+        },
+        {
+          "id": "1791774483508",
+          "categoria": "Juegos",
+          "titulo": "Call of Duty Mobile",
+          "desc": "Recarga Via acceso",
+          "img": "https://lh3.googleusercontent.com/d/1jajT3d5s0q1f_tkUCMSsP_89Vb73yWub",
+          "esOferta": true,
+          "esAgotado": false,
+          "variantes": [
+            { "nombre": "80 CodP", "usdt": 1.25 },
+            { "nombre": "420 CodP", "usdt": 6 },
+            { "nombre": "880 CodP", "usdt": 11.8 },
+            { "nombre": "2400 CodP", "usdt": 25.9 },
+            { "nombre": "5000 CodP", "usdt": 52.5 }
+          ]
+        },
+        {
+          "id": "1791775364890",
+          "categoria": "Juegos",
+          "titulo": "Free Fire Latam",
+          "desc": "Recarga VIA ID",
+          "img": "https://drive.google.com/uc?export=view&id=",
+          "esOferta": true,
+          "esAgotado": false,
+          "variantes": [
+            { "nombre": "100 Diamantes", "usdt": 1.3 },
+            { "nombre": "300 Diamantes", "usdt": 3.8 },
+            { "nombre": "500 Diamantes", "usdt": 5.9 },
+            { "nombre": "1060 Diamantes", "usdt": 11.8 }
+          ]
+        }
+      ]
+    };
+
+    let storeData = JSON.parse(localStorage.getItem('jbstore_data')) || defaultData;
+
+    let cart = null;
+    let currentCategory = "TODOS";
+    let searchQuery = "";
+    let productQuantities = {};
+    let autoScrollTimer = null;
+
+    function cleanExpiredBanners() {
+      if (!storeData.banners) return;
+      const now = Date.now();
+      storeData.banners = storeData.banners.filter(b => !b.expireAt || b.expireAt > now);
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('jbstore_data', JSON.stringify(storeData));
+      renderStore();
+      populateAdminProductDropdown();
+      populateAdminBannerDropdown();
+      renderSalesHistory();
+    }
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.toggle('active', b.innerText.includes(cat) || (cat === 'TODOS' && b.innerText === 'Todos'));
+      });
+      renderStore();
+    }
+
+    function onSearchInput() {
+      searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+      renderStore();
+    }
+
+    function renderStore() {
+      cleanExpiredBanners();
+      document.getElementById('tasa-display').innerText = `Tasa del día: ${storeData.tasaBs.toFixed(2)} BS / USDT`;
+      document.getElementById('pm-info-text').innerText = storeData.pagoMovil;
+      document.getElementById('binance-info-text').innerText = storeData.binanceId;
+
+      // Estado Atencion
+      const statusBox = document.getElementById('status-display');
+      if (storeData.estadoAtencion === "ONLINE") {
+        statusBox.className = "status-badge status-online";
+        statusBox.innerText = "🟢 Atendiendo / En Línea";
+      } else {
+        statusBox.className = "status-badge status-offline";
+        statusBox.innerText = "🔴 Cerrado Temporalmente";
+      }
+
+      // Banners
+      const bannersList = document.getElementById('banners-list');
+      bannersList.innerHTML = '';
+      if (storeData.banners && storeData.banners.length > 0) {
+        document.querySelector('.banner-container').style.display = 'block';
+        storeData.banners.forEach((b, bIdx) => {
+          bannersList.innerHTML += `
+            <div class="banner-card" onclick="openPromoModal(${bIdx})">
+              <img src="${b.img}" alt="Banner">
+              <div class="banner-overlay">
+                <div class="banner-title">${b.titulo}</div>
+                <div class="banner-sub">Toca para ver novedad ➔</div>
+              </div>
+            </div>
+          `;
+        });
+        startAutoScroll();
+      } else {
+        document.querySelector('.banner-container').style.display = 'none';
+        stopAutoScroll();
+      }
+
+      // Productos
+      const grid = document.getElementById('products-container');
+      grid.innerHTML = '';
+
+      let prodsFiltered = storeData.productos.filter(p => {
+        let matchCat = (currentCategory === "TODOS" || (p.categoria && p.categoria === currentCategory));
+        let matchSearch = searchQuery === "" || 
+                          p.titulo.toLowerCase().includes(searchQuery) || 
+                          p.desc.toLowerCase().includes(searchQuery);
+        return matchCat && matchSearch;
+      });
+
+      if (prodsFiltered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px;">🔍 No se encontraron productos para esta búsqueda.</div>`;
+        return;
+      }
+
+      prodsFiltered.forEach((p, idx) => {
+        if (!productQuantities[p.id]) productQuantities[p.id] = 1;
+        let qty = productQuantities[p.id];
+
+        let badgeOffer = p.esOferta ? `<div class="badge-offer">🔥 Oferta</div>` : '';
+        let badgeOut = p.esAgotado ? `<div class="badge-out">Agotado</div>` : '';
+        
+        let options = p.variantes.map((v) => {
+          let unitUsdt = v.usdt;
+          let totalUsdt = unitUsdt * qty;
+          let bs = (totalUsdt * storeData.tasaBs).toFixed(2);
+          return `<option value="${unitUsdt}" data-name="${v.nombre}">${v.nombre} — ${unitUsdt.toFixed(2)} USDT</option>`;
+        }).join('');
+
+        let unitUsdt = p.variantes[0].usdt;
+        let totalUsdt = unitUsdt * qty;
+        let totalBs = (totalUsdt * storeData.tasaBs).toFixed(2);
+
+        grid.innerHTML += `
+          <div class="card" style="${p.esAgotado ? 'opacity: 0.75;' : ''}">
+            ${badgeOffer}
+            ${badgeOut}
+            <div>
+              <img src="${p.img}" class="card-img" alt="${p.titulo}">
+              <div class="card-title">${p.titulo}</div>
+              <div class="card-desc">${p.desc}</div>
+              <div class="field-group">
+                <label>Selecciona Opción:</label>
+                <select id="sel-${idx}" onchange="updatePrice(${idx})" ${p.esAgotado ? 'disabled' : ''}>${options}</select>
+              </div>
+
+              <div class="field-group">
+                <label>Cantidad:</label>
+                <div class="qty-box">
+                  <button class="qty-btn" onclick="changeQty('${p.id}', -1, ${idx})" ${p.esAgotado ? 'disabled' : ''}>-</button>
+                  <span class="qty-val" id="qty-val-${p.id}">${qty}</span>
+                  <button class="qty-btn" onclick="changeQty('${p.id}', 1, ${idx})" ${p.esAgotado ? 'disabled' : ''}>+</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="price-box">
+                <div class="price-usdt" id="usdt-${idx}">${totalUsdt.toFixed(2)} USDT</div>
+                <div class="price-bs" id="bs-${idx}">~ ${totalBs} BS</div>
+              </div>
+              <button class="btn" style="${p.esAgotado ? 'background: #9ca3af; cursor: not-allowed;' : ''}" onclick="addToCart(${idx}, '${p.id}')" ${p.esAgotado ? 'disabled' : ''}>
+                ${p.esAgotado ? 'Agotado Temporalmente' : 'Seleccionar Pedido'}
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function changeQty(prodId, delta, idx) {
+      if (!productQuantities[prodId]) productQuantities[prodId] = 1;
+      productQuantities[prodId] = Math.max(1, productQuantities[prodId] + delta);
+      document.getElementById(`qty-val-${prodId}`).innerText = productQuantities[prodId];
+      updatePrice(idx, prodId);
+    }
+
+    function updatePrice(idx, prodId) {
+      let sel = document.getElementById(`sel-${idx}`);
+      if (!sel) return;
+      let pId = prodId || storeData.productos[idx]?.id;
+      let qty = productQuantities[pId] || 1;
+      let unitUsdt = parseFloat(sel.value);
+      let totalUsdt = unitUsdt * qty;
+      let totalBs = (totalUsdt * storeData.tasaBs).toFixed(2);
+
+      document.getElementById(`usdt-${idx}`).innerText = `${totalUsdt.toFixed(2)} USDT`;
+      document.getElementById(`bs-${idx}`).innerText = `~ ${totalBs} BS`;
+    }
+
+    function addToCart(idx, prodId) {
+      let p = storeData.productos[idx];
+      let sel = document.getElementById(`sel-${idx}`);
+      let opt = sel.options[sel.selectedIndex];
+      let unitUsdt = parseFloat(sel.value);
+      let qty = productQuantities[prodId] || 1;
+      let totalUsdt = unitUsdt * qty;
+      let totalBs = (totalUsdt * storeData.tasaBs).toFixed(2);
+
+      cart = { titulo: p.titulo, opcion: opt.getAttribute('data-name'), cantidad: qty, usdt: totalUsdt, bs: totalBs };
+      document.getElementById('cart-usdt').innerText = `${totalUsdt.toFixed(2)} USDT`;
+      document.getElementById('cart-bs').innerText = `~ ${totalBs} BS`;
+
+      showToast(`✅ ${qty}x ${p.titulo} seleccionado. Finaliza en 'Pagar Pedido'.`);
+    }
+
+    function openCheckout() {
+      if (!cart) return alert("Selecciona un producto primero.");
+      document.getElementById('checkout-summary').innerHTML = `
+        <b>Producto:</b> ${cart.titulo}<br>
+        <b>Opción:</b> ${cart.opcion}<br>
+        <b>Cantidad:</b> x${cart.cantidad}<br>
+        <b>Monto Total:</b> ${cart.usdt.toFixed(2)} USDT (${cart.bs} BS)
+      `;
+      openModal('checkout-modal');
+    }
+
+    function submitOrder() {
+      let accountData = document.getElementById('client-account-data').value.trim();
+      if (!accountData) return alert("Por favor ingresa los datos de tu cuenta o usuario para procesar el pedido.");
+
+      if (!storeData.ventas) storeData.ventas = [];
+      storeData.ventas.unshift({
+        fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        producto: `${cart.cantidad}x ${cart.titulo} (${cart.opcion})`,
+        montoUsdt: cart.usdt,
+        montoBs: cart.bs
+      });
+      saveToStorage();
+
+      let text = `📦 *NUEVO PEDIDO JBstore*\n\n📌 *Producto:* ${cart.titulo}\n🔹 *Opción:* ${cart.opcion}\n🔢 *Cantidad:* x${cart.cantidad}\n💰 *Monto total:* ${cart.usdt.toFixed(2)} USDT / ${cart.bs} BS (Tasa: ${storeData.tasaBs} BS)\n\n👤 *Datos de la Cuenta:* \n${accountData}\n\n📷 *Adjunto la captura de pago a continuación.*`;
+      
+      let tg = window.Telegram?.WebApp;
+      if (tg && tg.sendData) { tg.sendData(text); } else { window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(text)}`, '_blank'); }
+      closeModal('checkout-modal');
+    }
+
+    function shareStore() {
+      if (navigator.share) {
+        navigator.share({ title: 'JBstore — Catálogo Digital', text: '¡Echa un vistazo a los mejores precios de recargas y cuentas en JBstore!', url: window.location.href });
+      } else {
+        copyTextVal(window.location.href);
+        showToast("📋 Enlace de la tienda copiado");
+      }
+    }
+
+    function copyTextVal(val) { navigator.clipboard.writeText(val); }
+    function copyText(elemId) { copyTextVal(document.getElementById(elemId).innerText); showToast("📋 Copiado al portapapeles"); }
+
+    function toggleFaq(elem) {
+      let body = elem.nextElementSibling;
+      let isVisible = body.style.display === 'block';
+      body.style.display = isVisible ? 'none' : 'block';
+      elem.querySelector('span').innerText = isVisible ? '▼' : '▲';
+    }
+
+    function nextBanner() {
+      const container = document.getElementById('banners-list');
+      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) { container.scrollTo({ left: 0, behavior: 'smooth' }); } 
+      else { container.scrollBy({ left: container.clientWidth, behavior: 'smooth' }); }
+    }
+
+    function prevBanner() {
+      const container = document.getElementById('banners-list');
+      if (container.scrollLeft <= 0) { container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' }); } 
+      else { container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' }); }
+    }
+
+    function startAutoScroll() { stopAutoScroll(); if (storeData.banners && storeData.banners.length > 1) autoScrollTimer = setInterval(nextBanner, 4000); }
+    function stopAutoScroll() { if (autoScrollTimer) clearInterval(autoScrollTimer); }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg; toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+
+    function openPromoModal(bIdx) {
+      let b = storeData.banners[bIdx];
+      document.getElementById('promo-modal-img').src = b.img;
+      document.getElementById('promo-modal-title').innerText = b.titulo;
+      document.getElementById('promo-modal-desc').innerText = b.desc;
+      let msg = encodeURIComponent(`Hola JBstore, vi esta oferta en tu catálogo web y me interesa comprar:\n📢 *${b.titulo}*\n\n¿Tienen disponibilidad?`);
+      document.getElementById('btn-go-offer').onclick = function() { window.open(`https://wa.me/${PHONE_NUMBER}?text=${msg}`, '_blank'); };
+      openModal('promo-modal');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function authAdmin() {
+      if (document.getElementById('admin-pin').value === "24.07.12") {
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-body').style.display = 'block';
+        document.getElementById('admin-status').value = storeData.estadoAtencion || "ONLINE";
+        document.getElementById('admin-tasa').value = storeData.tasaBs;
+        document.getElementById('admin-pm').value = storeData.pagoMovil;
+        document.getElementById('admin-binance').value = storeData.binanceId;
+        populateAdminProductDropdown();
+        populateAdminBannerDropdown();
+        renderSalesHistory();
+      } else { alert("PIN Incorrecto"); }
+    }
+
+    function saveSettings() {
+      storeData.estadoAtencion = document.getElementById('admin-status').value;
+      storeData.tasaBs = parseFloat(document.getElementById('admin-tasa').value) || storeData.tasaBs;
+      storeData.pagoMovil = document.getElementById('admin-pm').value;
+      storeData.binanceId = document.getElementById('admin-binance').value;
+      saveToStorage();
+      alert("Configuración actualizada.");
+    }
+
+    /* HISTORIAL DE VENTAS */
+    function renderSalesHistory() {
+      const box = document.getElementById('sales-history-list');
+      if (!storeData.ventas || storeData.ventas.length === 0) {
+        box.innerHTML = '<p style="font-size: 11px; color: var(--text-muted);">Sin ventas registradas aún.</p>';
+        return;
+      }
+      box.innerHTML = storeData.ventas.slice(0, 10).map(v => `
+        <div class="history-item">
+          <b>${v.fecha}</b> — ${v.producto}<br>
+          <span style="color:var(--success); font-weight:700;">${v.montoUsdt.toFixed(2)} USDT (${v.montoBs} BS)</span>
+        </div>
+      `).join('');
+    }
+
+    /* GESTIÓN DE PRODUCTOS */
+    function populateAdminProductDropdown() {
+      let sel = document.getElementById('edit-prod-select');
+      sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO ARTÍCULO --</option>';
+      storeData.productos.forEach(p => { sel.innerHTML += `<option value="${p.id}">✏️ ${p.titulo}</option>`; });
+      loadProductToEdit();
+    }
+
+    function loadProductToEdit() {
+      let selectedId = document.getElementById('edit-prod-select').value;
+      let btnDelete = document.getElementById('btn-delete-prod');
+      let btnSave = document.getElementById('btn-save-prod');
+
+      if (selectedId === "NEW") {
+        document.getElementById('prod-category').value = 'Juegos';
+        document.getElementById('prod-title').value = '';
+        document.getElementById('prod-desc').value = '';
+        document.getElementById('prod-img').value = DRIVE_PREFIX;
+        document.getElementById('prod-variants').value = '';
+        document.getElementById('prod-offer').checked = false;
+        document.getElementById('prod-out').checked = false;
+        btnDelete.style.display = 'none';
+        btnSave.innerText = "Guardar Artículo";
+      } else {
+        let p = storeData.productos.find(prod => prod.id === selectedId);
+        if (p) {
+          document.getElementById('prod-category').value = p.categoria || 'Juegos';
+          document.getElementById('prod-title').value = p.titulo;
+          document.getElementById('prod-desc').value = p.desc;
+          document.getElementById('prod-img').value = p.img;
+          document.getElementById('prod-variants').value = p.variantes.map(v => `${v.nombre}:${v.usdt}`).join(', ');
+          document.getElementById('prod-offer').checked = p.esOferta || false;
+          document.getElementById('prod-out').checked = p.esAgotado || false;
+          btnDelete.style.display = 'block';
+          btnSave.innerText = "Actualizar Cambios";
+        }
+      }
+    }
+
+    function saveProduct() {
+      let selectedId = document.getElementById('edit-prod-select').value;
+      let category = document.getElementById('prod-category').value;
+      let title = document.getElementById('prod-title').value;
+      let desc = document.getElementById('prod-desc').value;
+      let img = document.getElementById('prod-img').value.trim() || "https://via.placeholder.com/300x150";
+      let rawVar = document.getElementById('prod-variants').value;
+      let isOffer = document.getElementById('prod-offer').checked;
+      let isOut = document.getElementById('prod-out').checked;
+
+      if (!title || !rawVar) return alert("Ingresa el título y las variantes.");
+
+      let vars = rawVar.split(',').map(v => {
+        let [n, p] = v.split(':');
+        return { nombre: n.trim(), usdt: parseFloat(p.trim()) };
+      });
+
+      if (selectedId === "NEW") {
+        storeData.productos.push({ id: Date.now().toString(), categoria: category, titulo: title, desc, img, esOferta: isOffer, esAgotado: isOut, variantes: vars });
+        alert("Nuevo artículo creado exitosamente.");
+      } else {
+        let idx = storeData.productos.findIndex(p => p.id === selectedId);
+        if (idx !== -1) {
+          storeData.productos[idx] = { id: selectedId, categoria: category, titulo: title, desc, img, esOferta: isOffer, esAgotado: isOut, variantes: vars };
+          alert("Artículo actualizado correctamente.");
+        }
+      }
+
+      saveToStorage();
+      document.getElementById('edit-prod-select').value = "NEW";
+      loadProductToEdit();
+    }
+
+    function deleteProduct() {
+      let selectedId = document.getElementById('edit-prod-select').value;
+      if (selectedId === "NEW") return;
+      if (confirm("¿Estás seguro de eliminar este producto?")) {
+        storeData.productos = storeData.productos.filter(p => p.id !== selectedId);
+        saveToStorage();
+        document.getElementById('edit-prod-select').value = "NEW";
+        loadProductToEdit();
+        alert("Producto eliminado.");
+      }
+    }
+
+    /* GESTIÓN DE BANNERS */
+    function populateAdminBannerDropdown() {
+      let sel = document.getElementById('edit-banner-select');
+      sel.innerHTML = '<option value="NEW">➕ -- CREAR NUEVO BANNER --</option>';
+      if (storeData.banners) {
+        storeData.banners.forEach((b, idx) => { sel.innerHTML += `<option value="${b.id || idx}">🖼️ ${b.titulo}</option>`; });
+      }
+      loadBannerToEdit();
+    }
+
+    function loadBannerToEdit() {
+      let selectedId = document.getElementById('edit-banner-select').value;
+      let btnDelete = document.getElementById('btn-delete-banner');
+      let btnSave = document.getElementById('btn-save-banner');
+
+      if (selectedId === "NEW") {
+        document.getElementById('banner-title').value = '';
+        document.getElementById('banner-desc').value = '';
+        document.getElementById('banner-img').value = DRIVE_PREFIX;
+        document.getElementById('banner-hours').value = '24';
+        btnDelete.style.display = 'none';
+        btnSave.innerText = "Guardar Banner";
+      } else {
+        let b = storeData.banners.find((item, idx) => (item.id === selectedId || idx.toString() === selectedId));
+        if (b) {
+          document.getElementById('banner-title').value = b.titulo;
+          document.getElementById('banner-desc').value = b.desc;
+          document.getElementById('banner-img').value = b.img;
+          document.getElementById('banner-hours').value = b.expireAt ? Math.max(0, Math.round((b.expireAt - Date.now()) / (1000 * 60 * 60))) : '0';
+          btnDelete.style.display = 'block';
+          btnSave.innerText = "Actualizar Banner";
+        }
+      }
+    }
+
+    function saveBanner() {
+      if (!storeData.banners) storeData.banners = [];
+      let selectedId = document.getElementById('edit-banner-select').value;
+      if (selectedId === "NEW" && storeData.banners.length >= 3) return alert("Máximo 3 banners activos.");
+
+      let title = document.getElementById('banner-title').value;
+      let desc = document.getElementById('banner-desc').value;
+      let img = document.getElementById('banner-img').value.trim();
+      let hours = parseFloat(document.getElementById('banner-hours').value) || 0;
+
+      if (!title || !img) return alert("Ingresa título e imagen.");
+
+      let expireAt = hours > 0 ? Date.now() + (hours * 3600 * 1000) : null;
+
+      if (selectedId === "NEW") {
+        storeData.banners.push({ id: 'b_' + Date.now(), titulo: title, desc: desc, img: img, expireAt: expireAt });
+      } else {
+        let idx = storeData.banners.findIndex((b, i) => (b.id === selectedId || i.toString() === selectedId));
+        if (idx !== -1) storeData.banners[idx] = { id: storeData.banners[idx].id || ('b_' + Date.now()), titulo: title, desc: desc, img: img, expireAt: expireAt };
+      }
+
+      saveToStorage();
+      document.getElementById('edit-banner-select').value = "NEW";
+      loadBannerToEdit();
+      alert("Banner guardado.");
+    }
+
+    function deleteBanner() {
+      let selectedId = document.getElementById('edit-banner-select').value;
+      if (selectedId === "NEW") return;
+      if (confirm("¿Eliminar este banner?")) {
+        storeData.banners = storeData.banners.filter((b, i) => !(b.id === selectedId || i.toString() === selectedId));
+        saveToStorage();
+        document.getElementById('edit-banner-select').value = "NEW";
+        loadBannerToEdit();
+        alert("Banner eliminado.");
+      }
+    }
+
+    /* RESPALDOS (EXPORT / IMPORT) */
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `JBstore_Respaldo_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function triggerImport() { document.getElementById('import-file').click(); }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.productos) {
+            storeData = imported;
+            saveToStorage();
+            alert("¡Respaldo restaurado con éxito!");
+          } else { alert("El archivo no es un respaldo válido de JBstore."); }
+        } catch (err) { alert("Error al leer el archivo JSON."); }
+      };
+      reader.readAsText(file);
+    }
+
+    function generateReceipt() {
+      let client = document.getElementById('receipt-client-name').value;
+      let item = document.getElementById('receipt-item-detail').value;
+      if (!client || !item) return alert("Ingresa nombre de cliente y detalle.");
+
+      document.getElementById('receipt-output').innerHTML = `
+        <div class="receipt-box">
+          <h3 style="text-align:center; margin-bottom:8px;">📄 NOTA DE ENTREGA — JBstore</h3>
+          <b>Cliente:</b> ${client}<br>
+          <b>Ítem Entregado:</b> ${item}<br>
+          <b>Fecha:</b> ${new Date().toLocaleDateString()}<br><br>
+          <i>Garantía & Descargo de Responsabilidad: JBstore certifica la entrega del ítem digital contratado. No nos hacemos responsables por mal uso, bloqueos externos o modificaciones realizadas tras la entrega del servicio.</i>
+        </div>
+      `;
+    }
+
+    renderStore();
+  </script>
+</body>
+</html>
